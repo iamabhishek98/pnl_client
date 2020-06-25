@@ -24,11 +24,14 @@ class ReturnPartsContainer extends Component {
       name: that.state.name,
     };
 
-    let request = new Request("http://localhost:3001/api/get-return_av", {
-      method: "POST",
-      headers: new Headers({ "Content-Type": "application/json" }),
-      body: JSON.stringify(data),
-    });
+    let request = new Request(
+      "https://damp-basin-34910.herokuapp.com/api/get-return_av",
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
 
     // xmlhttprequest()
     fetch(request, { mode: "cors" })
@@ -78,11 +81,14 @@ class ReturnPartsContainer extends Component {
     console.log(data);
 
     if (data.specific_av !== "no specific av") {
-      let request = new Request("http://localhost:3001/api/return-part", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
+      let request = new Request(
+        "https://damp-basin-34910.herokuapp.com/api/return-part",
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })

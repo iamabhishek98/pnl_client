@@ -25,11 +25,14 @@ class RegisterContainer extends Component {
     console.log(data);
 
     if (data.name !== "" && data.email !== "" && data.password !== "") {
-      let request = new Request("http://localhost:3001/api/register-user", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
+      let request = new Request(
+        "https://damp-basin-34910.herokuapp.com/api/register-user",
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
