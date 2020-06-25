@@ -20,7 +20,7 @@ class PartsContainer extends Component {
 
     let that = this;
 
-    fetch("https://damp-basin-34910.herokuapp.com/api/get-generic_av")
+    fetch("http://localhost:3001/api/get-generic_av")
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
@@ -83,14 +83,11 @@ class PartsContainer extends Component {
     console.log(data);
 
     if (data.generic_av !== "no generic av" && data.quantity > 0) {
-      let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/get-parts",
-        {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        }
-      );
+      let request = new Request("http://localhost:3001/api/get-parts", {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      });
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
@@ -100,13 +97,35 @@ class PartsContainer extends Component {
               alertMessage("No Available Parts Found for the selected AV!");
               that.resetForms();
             } else {
-              // let data = data.data;
-              // for (let i = 0; i < data.length; i++) {
-              //   data[i].id = i + 1;
-              // }
+              let current_specific_av = "";
+              let data2 = [];
+              for (let i = 0; i < data.data.length; i++) {
+                if (data.data[i].specific_av != current_specific_av) {
+                  current_specific_av = data.data[i].specific_av;
+                  data2.push({
+                    specific_av: data.data[i].specific_av,
+                    generic_av: data.data[i].generic_av,
+                    description: data.data[i].description,
+                    level_2_av: "",
+                  });
+                  data2.push({
+                    specific_av: "",
+                    generic_av: "",
+                    description: "",
+                    level_2_av: data.data[i].level_2_av,
+                  });
+                } else {
+                  data2.push({
+                    specific_av: "",
+                    generic_av: "",
+                    description: "",
+                    level_2_av: data.data[i].level_2_av,
+                  });
+                }
+              }
               that.setState({
-                parts: data.data,
-                requested_parts: data.data,
+                parts: data2,
+                requested_parts: data2,
               });
               console.log("requested_parts", that.state.requested_parts);
             }
@@ -141,14 +160,11 @@ class PartsContainer extends Component {
       alertMessage("no available parts left to borrow!");
       that.resetForms();
     } else if (data.customer !== "") {
-      let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/update-part",
-        {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        }
-      );
+      let request = new Request("http://localhost:3001/api/update-part", {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      });
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
@@ -192,11 +208,12 @@ class PartsContainer extends Component {
  }*/
   renderTableData(parts) {
     return parts.map((part, index) => {
-      const { specific_av, generic_av, description } = part; //destructuring
+      const { specific_av, level_2_av, generic_av, description } = part; //destructuring
       return (
         <tr key={index}>
           <td>{index + 1}</td>
           <td>{specific_av}</td>
+          <td>{level_2_av}</td>
           <td>{generic_av}</td>
           <td>{description}</td>
         </tr>
@@ -263,6 +280,7 @@ class PartsContainer extends Component {
               <tr>
                 <th>ID</th>
                 <th>Specific AV</th>
+                <th>Level 2 AV</th>
                 <th>Generic AV</th>
                 <th>Description</th>
               </tr>

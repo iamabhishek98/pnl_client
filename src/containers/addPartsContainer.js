@@ -114,7 +114,26 @@ class AddPartsContainer extends Component {
   csvToJSON() {
     let csvData = this.state.csvData;
     let columns = csvData[0].data;
-    let result = [];
+    let csvResult = [];
+
+    // array = ["av","av",1,2,3,"av",4,5]
+    // array2 = []
+    // temp_obj = {av:"",lvl2:[]}
+    // empty_obj = {av:"",lvl2:[]}
+
+    // for (let i =0; i < array.length;i++) {
+    //   console.log(array2)
+    //   if (array[i] == "av") {
+    //     if (JSON.stringify(temp_obj) != JSON.stringify(empty_obj)) array2.push(temp_obj)
+    //     temp_obj = {av:"",lvl2:[]}
+    //     temp_obj.av = array[i]
+    //   } else {
+    //     temp_obj.lvl2.push(array[i])
+    //   }
+    // }
+    // array2.push(temp_obj)
+
+    // console.log(array2)
 
     for (let i = 1; i < csvData.length; i++) {
       let obj = {};
@@ -127,17 +146,45 @@ class AddPartsContainer extends Component {
           obj["description"] = temp[1];
         } else if (
           columns[j].toLowerCase() === "materialnumber" &&
-          currentline[j].length > 2 &&
-          currentline[j].slice(-2) === "AV"
+          currentline[j].length > 2
+          // &&
+          // currentline[j].slice(-2) === "AV"
         ) {
           obj["specific_av"] = currentline[j];
         }
       }
 
       if (obj.specific_av !== undefined) {
-        result.push(obj);
+        csvResult.push(obj);
       }
     }
+
+    let result = [];
+
+    let empty_obj = {
+      specific_av: "",
+      generic_av: "",
+      description: "",
+      level_2_av: [],
+    };
+    // shallow copy
+    let temp_obj = { ...empty_obj };
+
+    for (let i = 0; i < csvResult.length; i++) {
+      if (csvResult[i].specific_av.slice(-2) == "AV") {
+        if (JSON.stringify(temp_obj) != JSON.stringify(empty_obj))
+          result.push(temp_obj);
+        // deep copy
+        temp_obj = JSON.parse(JSON.stringify(empty_obj));
+        temp_obj.specific_av = csvResult[i].specific_av;
+        temp_obj.generic_av = csvResult[i].generic_av;
+        temp_obj.description = csvResult[i].description;
+      } else {
+        temp_obj.level_2_av.push(csvResult[i].specific_av);
+      }
+    }
+
+    result.push(temp_obj);
 
     return result;
   }
@@ -162,14 +209,11 @@ class AddPartsContainer extends Component {
 
         this.renderTableData(false);
 
-        let request = new Request(
-          "https://damp-basin-34910.herokuapp.com/api/upload-data",
-          {
-            method: "POST",
-            headers: new Headers({ "Content-Type": "application/json" }),
-            body: JSON.stringify(data),
-          }
-        );
+        let request = new Request("http://localhost:3001/api/upload-data", {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        });
 
         // xmlhttprequest()
         fetch(request, { mode: "cors" })
@@ -232,6 +276,7 @@ class AddPartsContainer extends Component {
     let A = [
       [
         "AV_P/N",
+        "AV_LEVEL_2",
         "AV_P/N_Description",
         "Country_Fulfil",
         "WW_Ref_Price_(2xcost)",
@@ -241,6 +286,7 @@ class AddPartsContainer extends Component {
     for (let i = 0; i < csv.length; i++) {
       A.push([
         csv[i].specific_av,
+        JSON.stringify(csv[i].level_2_av).replace(",", ";"),
         csv[i].description,
         region.toUpperCase(),
         "0.04",
@@ -275,11 +321,20 @@ class AddPartsContainer extends Component {
 
       if (renderStatus) {
         return jsonData.map((part, index) => {
-          const { specific_av, description, region } = part; //destructuring
+          const { specific_av, description, region, level_2_av } = part; //destructuring
           return (
             <tr key={index}>
               <td>{index + 1}</td>
               <td>{specific_av}</td>
+              <td>
+                {
+                  // not working
+                  JSON.stringify(level_2_av)
+                    .replace('","', ";")
+                    .replace('"["', "")
+                    .replace('"]"', "")
+                }
+              </td>
               <td>{description}</td>
               <td>{region}</td>
               <td>0.04</td>
@@ -363,6 +418,7 @@ class AddPartsContainer extends Component {
                 <tr>
                   <th>ID</th>
                   <th>AV P/N</th>
+                  <th>AV Level 2</th>
                   <th>AV P/N Description</th>
                   <th>Country Fulfil</th>
                   <th>WW Ref Price (2 x cost)</th>
@@ -429,7 +485,7 @@ class AddPartsContainer extends Component {
       formData.append("file", that.state.file);
 
       axios
-        .post("https://damp-basin-34910.herokuapp.com/api/upload", formData, {
+        .post("http://localhost:3001/api/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
