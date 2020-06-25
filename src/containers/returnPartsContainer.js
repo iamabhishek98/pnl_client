@@ -25,7 +25,7 @@ class ReturnPartsContainer extends Component {
     };
 
     let request = new Request(
-      "https://damp-basin-34910.herokuapp.com/api/get-return_av",
+      "https://infinite-fjord-35061.herokuapp.com/api/get-return_av",
       {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
@@ -82,7 +82,7 @@ class ReturnPartsContainer extends Component {
 
     if (data.specific_av !== "no specific av") {
       let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/return-part",
+        "https://infinite-fjord-35061.herokuapp.com/api/return-part",
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),

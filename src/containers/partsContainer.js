@@ -20,7 +20,7 @@ class PartsContainer extends Component {
 
     let that = this;
 
-    fetch("https://damp-basin-34910.herokuapp.com/api/get-generic_av")
+    fetch("https://infinite-fjord-35061.herokuapp.com/api/get-generic_av")
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
@@ -84,7 +84,7 @@ class PartsContainer extends Component {
 
     if (data.generic_av !== "no generic av" && data.quantity > 0) {
       let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/get-parts",
+        "https://infinite-fjord-35061.herokuapp.com/api/get-parts",
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
@@ -164,7 +164,7 @@ class PartsContainer extends Component {
       that.resetForms();
     } else if (data.customer !== "") {
       let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/update-part",
+        "https://infinite-fjord-35061.herokuapp.com/api/update-part",
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),

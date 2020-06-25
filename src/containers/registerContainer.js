@@ -26,7 +26,7 @@ class RegisterContainer extends Component {
 
     if (data.name !== "" && data.email !== "" && data.password !== "") {
       let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/register-user",
+        "https://infinite-fjord-35061.herokuapp.com/api/register-user",
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
