@@ -200,7 +200,8 @@ class AddPartsContainer extends Component {
         region: this.refs.region.value,
         date_of_upload: new Date(),
       };
-      console.log("data", data);
+
+      // console.log("data", data);
 
       if (data.region !== "no region") {
         this.setState({
