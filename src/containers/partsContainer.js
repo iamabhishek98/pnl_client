@@ -11,6 +11,8 @@ class PartsContainer extends Component {
       available_av: [],
       requested_parts: [],
       parts: undefined,
+      lvl2_parts: undefined,
+      lvl2_status: true,
     };
   }
 
@@ -20,7 +22,7 @@ class PartsContainer extends Component {
 
     let that = this;
 
-    fetch("http://localhost:3001/api/get-generic_av")
+    fetch(`${process.env.REACT_APP_API_URL}/api/get-generic_av`)
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
@@ -55,6 +57,7 @@ class PartsContainer extends Component {
       available_av: [],
       requested_parts: [],
       parts: undefined,
+      lvl2_parts: undefined,
     });
   }
 
@@ -68,6 +71,13 @@ class PartsContainer extends Component {
     this.setState({
       requested_parts: [],
       parts: undefined,
+      lvl2_parts: undefined,
+    });
+  }
+
+  toggleDisplayParts() {
+    this.setState({
+      lvl2_status: !this.state.lvl2_status,
     });
   }
 
@@ -84,7 +94,7 @@ class PartsContainer extends Component {
 
     if (data.generic_av !== "no generic av" && data.quantity > 0) {
       let request = new Request(
-        "http://localhost:3001/api/get-parts",
+        `${process.env.REACT_APP_API_URL}/api/get-parts`,
 
         {
           method: "POST",
@@ -102,24 +112,41 @@ class PartsContainer extends Component {
               that.resetForms();
             } else {
               let current_specific_av = "";
-              let data2 = [];
+
+              let distinct_av_data = JSON.parse(JSON.stringify(data.data));
+              for (let i = 0; i < distinct_av_data.length; i++) {
+                delete distinct_av_data[i].lvl2_av;
+              }
+
+              distinct_av_data = distinct_av_data.filter(
+                (data, index, self) =>
+                  index ===
+                  self.findIndex(
+                    (t) =>
+                      t.specific_av === data.specific_av &&
+                      t.generic_av === data.generic_av &&
+                      t.description === data.description
+                  )
+              );
+
+              let av_lvl2_data = [];
               for (let i = 0; i < data.data.length; i++) {
-                if (data.data[i].specific_av != current_specific_av) {
+                if (data.data[i].specific_av !== current_specific_av) {
                   current_specific_av = data.data[i].specific_av;
-                  data2.push({
+                  av_lvl2_data.push({
                     specific_av: data.data[i].specific_av,
                     generic_av: data.data[i].generic_av,
                     description: data.data[i].description,
                     level_2_av: "",
                   });
-                  data2.push({
+                  av_lvl2_data.push({
                     specific_av: "",
                     generic_av: "",
                     description: "",
                     level_2_av: data.data[i].level_2_av,
                   });
                 } else {
-                  data2.push({
+                  av_lvl2_data.push({
                     specific_av: "",
                     generic_av: "",
                     description: "",
@@ -128,8 +155,9 @@ class PartsContainer extends Component {
                 }
               }
               that.setState({
-                parts: data2,
-                requested_parts: data2,
+                parts: distinct_av_data,
+                lvl2_parts: av_lvl2_data,
+                requested_parts: distinct_av_data,
               });
               console.log("requested_parts", that.state.requested_parts);
             }
@@ -164,11 +192,14 @@ class PartsContainer extends Component {
       alertMessage("no available parts left to borrow!");
       that.resetForms();
     } else if (data.customer !== "") {
-      let request = new Request("http://localhost:3001/api/update-part", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
+      let request = new Request(
+        `${process.env.REACT_APP_API_URL}/api/update-part`,
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
@@ -210,7 +241,21 @@ class PartsContainer extends Component {
        </div>
     )
  }*/
-  renderTableData(parts) {
+  renderTableDistinctData(parts) {
+    return parts.map((part, index) => {
+      const { specific_av, generic_av, description } = part; //destructuring
+      return (
+        <tr key={index}>
+          <td>{index + 1}</td>
+          <td>{specific_av}</td>
+          <td>{generic_av}</td>
+          <td>{description}</td>
+        </tr>
+      );
+    });
+  }
+
+  renderTableLvl2Data(parts) {
     return parts.map((part, index) => {
       const { specific_av, level_2_av, generic_av, description } = part; //destructuring
       return (
@@ -229,7 +274,12 @@ class PartsContainer extends Component {
   render() {
     let name = titleCase(this.state.name);
     let available_av = this.state.available_av;
-    let parts = this.state.parts;
+    let parts = undefined;
+    if (this.state.lvl2_status) {
+      parts = this.state.parts;
+    } else {
+      parts = this.state.lvl2_parts;
+    }
     return (
       <div className="App">
         <br />
@@ -280,16 +330,45 @@ class PartsContainer extends Component {
         )}
         {parts !== undefined && (
           <div>
-            <table className="partsTable">
-              <tr>
-                <th>ID</th>
-                <th>Specific AV</th>
-                <th>Level 2 AV</th>
-                <th>Generic AV</th>
-                <th>Description</th>
-              </tr>
-              {this.renderTableData(parts)}
-            </table>
+            {this.state.lvl2_status && (
+              <div>
+                <button
+                  onClick={this.toggleDisplayParts.bind(this)}
+                  className="w3-button w3-light-grey react_button"
+                >
+                  View Level 2 AVs
+                </button>
+                <table className="partsTable">
+                  <tr>
+                    <th>ID</th>
+                    <th>Specific AV</th>
+                    <th>Generic AV</th>
+                    <th>Description</th>
+                  </tr>
+                  {this.renderTableDistinctData(parts)}
+                </table>
+              </div>
+            )}
+            {!this.state.lvl2_status && (
+              <div>
+                <button
+                  onClick={this.toggleDisplayParts.bind(this)}
+                  className="w3-button w3-light-grey react_button"
+                >
+                  Hide Level 2 AVs
+                </button>
+                <table className="partsTable">
+                  <tr>
+                    <th>ID</th>
+                    <th>Specific AV</th>
+                    <th>Level 2 AV</th>
+                    <th>Generic AV</th>
+                    <th>Description</th>
+                  </tr>
+                  {this.renderTableLvl2Data(parts)}
+                </table>
+              </div>
+            )}
 
             <br />
 

@@ -24,11 +24,14 @@ class LoginContainer extends Component {
     console.log(data);
 
     if (data.email !== "" && data.password !== "") {
-      let request = new Request("http://localhost:3001/api/check-user", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
+      let request = new Request(
+        `${process.env.REACT_APP_API_URL}/api/check-user`,
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })

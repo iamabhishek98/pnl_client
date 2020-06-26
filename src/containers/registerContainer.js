@@ -25,22 +25,14 @@ class RegisterContainer extends Component {
     console.log(data);
 
     if (data.name !== "" && data.email !== "" && data.password !== "") {
-<<<<<<< HEAD
-      let request = new Request("http://localhost:3001/api/register-user", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
-=======
       let request = new Request(
-        "https://infinite-fjord-35061.herokuapp.com/api/register-user",
+        `${process.env.REACT_APP_API_URL}/api/register-user`,
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
           body: JSON.stringify(data),
         }
       );
->>>>>>> 102e85efe564bc86a117d0d87085e3c8babe6216
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })

@@ -123,7 +123,7 @@ class AddPartsContainer extends Component {
 
     // for (let i =0; i < array.length;i++) {
     //   console.log(array2)
-    //   if (array[i] == "av") {
+    //   if (array[i] === "av") {
     //     if (JSON.stringify(temp_obj) != JSON.stringify(empty_obj)) array2.push(temp_obj)
     //     temp_obj = {av:"",lvl2:[]}
     //     temp_obj.av = array[i]
@@ -171,8 +171,8 @@ class AddPartsContainer extends Component {
     let temp_obj = { ...empty_obj };
 
     for (let i = 0; i < csvResult.length; i++) {
-      if (csvResult[i].specific_av.slice(-2) == "AV") {
-        if (JSON.stringify(temp_obj) != JSON.stringify(empty_obj))
+      if (csvResult[i].specific_av.slice(-2) === "AV") {
+        if (JSON.stringify(temp_obj) !== JSON.stringify(empty_obj))
           result.push(temp_obj);
         // deep copy
         temp_obj = JSON.parse(JSON.stringify(empty_obj));
@@ -209,11 +209,14 @@ class AddPartsContainer extends Component {
 
         this.renderTableData(false);
 
-        let request = new Request("http://localhost:3001/api/upload-data", {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        });
+        let request = new Request(
+          `${process.env.REACT_APP_API_URL}/api/upload-data`,
+          {
+            method: "POST",
+            headers: new Headers({ "Content-Type": "application/json" }),
+            body: JSON.stringify(data),
+          }
+        );
 
         // xmlhttprequest()
         fetch(request, { mode: "cors" })

@@ -25,7 +25,7 @@ class ReturnPartsContainer extends Component {
     };
 
     let request = new Request(
-      "https://infinite-fjord-35061.herokuapp.com/api/get-return_av",
+      `${process.env.REACT_APP_API_URL}/api/get-return_av`,
       {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
@@ -81,11 +81,14 @@ class ReturnPartsContainer extends Component {
     console.log(data);
 
     if (data.specific_av !== "no specific av") {
-      let request = new Request("http://localhost:3001/api/return-part", {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
+      let request = new Request(
+        `${process.env.REACT_APP_API_URL}/api/return-part`,
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
