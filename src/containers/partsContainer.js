@@ -85,6 +85,7 @@ class PartsContainer extends Component {
     if (data.generic_av !== "no generic av" && data.quantity > 0) {
       let request = new Request(
         "http://localhost:3001/api/get-parts",
+
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
@@ -163,14 +164,11 @@ class PartsContainer extends Component {
       alertMessage("no available parts left to borrow!");
       that.resetForms();
     } else if (data.customer !== "") {
-      let request = new Request(
-        "http://localhost:3001/api/update-part",
-        {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        }
-      );
+      let request = new Request("http://localhost:3001/api/update-part", {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      });
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })

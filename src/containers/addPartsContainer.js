@@ -209,14 +209,11 @@ class AddPartsContainer extends Component {
 
         this.renderTableData(false);
 
-        let request = new Request(
-          "https://damp-basin-34910.herokuapp.com/api/upload-data",
-          {
-            method: "POST",
-            headers: new Headers({ "Content-Type": "application/json" }),
-            body: JSON.stringify(data),
-          }
-        );
+        let request = new Request("http://localhost:3001/api/upload-data", {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        });
 
         // xmlhttprequest()
         fetch(request, { mode: "cors" })
@@ -488,7 +485,7 @@ class AddPartsContainer extends Component {
       formData.append("file", that.state.file);
 
       axios
-        .post("https://damp-basin-34910.herokuapp.com/api/upload", formData, {
+        .post("https://infinite-fjord-35061.herokuapp.com/api/upload", formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },

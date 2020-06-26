@@ -26,7 +26,7 @@ class App extends Component {
           <ProtectedRoute exact path="/home" component={getParts} />
           <ProtectedRoute exact path="/return" component={returnParts} />
           <ProtectedRoute exact path="/delete" component={deleteParts} />
-          <Route exact path="/add" component={addParts} />
+          <ProtectedRoute exact path="/add" component={addParts} />
           <ProtectedRoute exact path="/logout" component={logout} />
           <Route exact path="/404" component={NotFoundPage} />
           <Redirect to="/404" />
