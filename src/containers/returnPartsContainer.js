@@ -25,7 +25,7 @@ class ReturnPartsContainer extends Component {
     };
 
     let request = new Request(
-      `${process.env.REACT_APP_API_URL}/api/get-return_av`,
+      `${process.env.REACT_APP_API_URL}api/get-return_av`,
       {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
@@ -82,7 +82,7 @@ class ReturnPartsContainer extends Component {
 
     if (data.specific_av !== "no specific av") {
       let request = new Request(
-        `${process.env.REACT_APP_API_URL}/api/return-part`,
+        `${process.env.REACT_APP_API_URL}api/return-part`,
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),

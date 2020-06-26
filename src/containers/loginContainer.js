@@ -25,7 +25,7 @@ class LoginContainer extends Component {
 
     if (data.email !== "" && data.password !== "") {
       let request = new Request(
-        `${process.env.REACT_APP_API_URL}/api/check-user`,
+        `${process.env.REACT_APP_API_URL}api/check-user`,
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),

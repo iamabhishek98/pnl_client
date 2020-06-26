@@ -22,7 +22,7 @@ class PartsContainer extends Component {
 
     let that = this;
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/get-generic_av`)
+    fetch(`${process.env.REACT_APP_API_URL}api/get-generic_av`)
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
@@ -94,7 +94,7 @@ class PartsContainer extends Component {
 
     if (data.generic_av !== "no generic av" && data.quantity > 0) {
       let request = new Request(
-        `${process.env.REACT_APP_API_URL}/api/get-parts`,
+        `${process.env.REACT_APP_API_URL}api/get-parts`,
 
         {
           method: "POST",
@@ -193,7 +193,7 @@ class PartsContainer extends Component {
       that.resetForms();
     } else if (data.customer !== "") {
       let request = new Request(
-        `${process.env.REACT_APP_API_URL}/api/update-part`,
+        `${process.env.REACT_APP_API_URL}api/update-part`,
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
