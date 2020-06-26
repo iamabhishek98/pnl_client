@@ -39,7 +39,10 @@ class RegisterContainer extends Component {
         .then(function (response) {
           response.json().then(function (data) {
             console.log(data);
-            if (data.message.toLowerCase() === "not valid hp user") {
+            if (
+              data.message.toLowerCase() === "not valid hp user" ||
+              data.message.toLowerCase() === "unable to register user"
+            ) {
               alertMessage(data.message + "!");
             } else {
               alertMessage("Registration Successful!");
