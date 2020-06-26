@@ -221,6 +221,67 @@ class PartsContainer extends Component {
       alertMessage("Please enter the Customer information!");
     }
   }
+
+  exportCsv(event) {
+    if (this.state.lvl2_status) {
+      let csv = this.state.parts;
+      console.log("csv", csv);
+
+      let csvRow = [];
+
+      let A = [["Specific_AV", "Generic_AV", "Description"]];
+
+      for (let i = 0; i < csv.length; i++) {
+        A.push([csv[i].specific_av, csv[i].generic_av, csv[i].description]);
+      }
+
+      for (let i = 0; i < A.length; ++i) {
+        csvRow.push(A[i].join(","));
+      }
+
+      let csvString = csvRow.join("%0A");
+
+      let a = document.createElement("a");
+      a.href = "data:attachment/csv," + csvString;
+      a.target = "_Blank";
+      a.download = "Retrieved Data.csv";
+      document.body.appendChild(a);
+      a.click();
+
+      console.warn(csvString);
+    } else {
+      let csv = this.state.lvl2_parts;
+      console.log("csv", csv);
+
+      let csvRow = [];
+
+      let A = [["Specific_AV", "Level_2_AV", "Generic_AV", "Description"]];
+
+      for (let i = 0; i < csv.length; i++) {
+        A.push([
+          csv[i].specific_av,
+          csv[i].level_2_av,
+          csv[i].generic_av,
+          csv[i].description,
+        ]);
+      }
+
+      for (let i = 0; i < A.length; ++i) {
+        csvRow.push(A[i].join(","));
+      }
+
+      let csvString = csvRow.join("%0A");
+
+      let a = document.createElement("a");
+      a.href = "data:attachment/csv," + csvString;
+      a.target = "_Blank";
+      a.download = "Retrieved Data.csv";
+      document.body.appendChild(a);
+      a.click();
+
+      console.warn(csvString);
+    }
+  }
   /*renderTableHeader() {
     let header = Object.keys(this.state.students[0])
     return header.map((key, index) => {
@@ -338,6 +399,12 @@ class PartsContainer extends Component {
                 >
                   View Level 2 AVs
                 </button>
+                <button
+                  onClick={this.exportCsv.bind(this)}
+                  className="w3-button w3-light-grey react_button"
+                >
+                  Download Table
+                </button>
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
@@ -357,6 +424,13 @@ class PartsContainer extends Component {
                 >
                   Hide Level 2 AVs
                 </button>
+                <button
+                  onClick={this.exportCsv.bind(this)}
+                  className="w3-button w3-light-grey react_button"
+                >
+                  Download Table
+                </button>
+
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
