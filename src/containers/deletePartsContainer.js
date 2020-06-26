@@ -26,14 +26,11 @@ class DeletePartsContainer extends Component {
       name: that.state.name,
     };
 
-    let request = new Request(
-      "https://damp-basin-34910.herokuapp.com/api/get-delete_av",
-      {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      }
-    );
+    let request = new Request("http://localhost:3001/api/get-delete_av", {
+      method: "POST",
+      headers: new Headers({ "Content-Type": "application/json" }),
+      body: JSON.stringify(data),
+    });
 
     // xmlhttprequest()
     fetch(request, { mode: "cors" })
@@ -83,7 +80,7 @@ class DeletePartsContainer extends Component {
     console.log(data);
 
     if (data.av !== "") {
-      let request = new Request("https://damp-basin-34910.herokuapp.com/api/get-part", {
+      let request = new Request("http://localhost:3001/api/get-part", {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
         body: JSON.stringify(data),
@@ -128,14 +125,11 @@ class DeletePartsContainer extends Component {
     };
 
     if (data.specific_av !== "no specific av") {
-      let request = new Request(
-        "https://damp-basin-34910.herokuapp.com/api/delete-part",
-        {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        }
-      );
+      let request = new Request("http://localhost:3001/api/delete-part", {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      });
 
       // xmlhttprequest()
       fetch(request, { mode: "cors" })
