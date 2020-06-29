@@ -131,6 +131,7 @@ class PartsContainer extends Component {
               alertMessage("No Available Parts Found for the selected AV!");
               that.resetForms();
             } else {
+              console.log(data.data);
               let current_specific_av = "";
 
               let distinct_av_data = JSON.parse(JSON.stringify(data.data));
@@ -149,31 +150,58 @@ class PartsContainer extends Component {
                   )
               );
 
+              // let av_lvl2_data = [];
+              // for (let i = 0; i < data.data.length; i++) {
+              //   if (data.data[i].specific_av !== current_specific_av) {
+              //     current_specific_av = data.data[i].specific_av;
+              //     av_lvl2_data.push({
+              //       specific_av: data.data[i].specific_av,
+              //       generic_av: data.data[i].generic_av,
+              //       description: data.data[i].description,
+              //       level_2_av: "",
+              //     });
+              //     av_lvl2_data.push({
+              //       specific_av: "",
+              //       generic_av: "",
+              //       description: "",
+              //       level_2_av: data.data[i].level_2_av,
+              //     });
+              //   } else {
+              //     av_lvl2_data.push({
+              //       specific_av: "",
+              //       generic_av: "",
+              //       description: "",
+              //       level_2_av: data.data[i].level_2_av,
+              //     });
+              //   }
+              // }
               let av_lvl2_data = [];
+              let empty_obj = {
+                specific_av: "",
+                generic_av: "",
+                description: "",
+                level_2_av: "",
+              };
+              let temp_obj = { ...empty_obj };
               for (let i = 0; i < data.data.length; i++) {
                 if (data.data[i].specific_av !== current_specific_av) {
+                  // console.log(temp_obj)
+                  if (JSON.stringify(temp_obj) !== JSON.stringify(empty_obj))
+                    av_lvl2_data.push(temp_obj);
                   current_specific_av = data.data[i].specific_av;
-                  av_lvl2_data.push({
+                  temp_obj = {
                     specific_av: data.data[i].specific_av,
                     generic_av: data.data[i].generic_av,
                     description: data.data[i].description,
-                    level_2_av: "",
-                  });
-                  av_lvl2_data.push({
-                    specific_av: "",
-                    generic_av: "",
-                    description: "",
                     level_2_av: data.data[i].level_2_av,
-                  });
+                  };
                 } else {
-                  av_lvl2_data.push({
-                    specific_av: "",
-                    generic_av: "",
-                    description: "",
-                    level_2_av: data.data[i].level_2_av,
-                  });
+                  temp_obj.level_2_av += "; " + data.data[i].level_2_av;
                 }
               }
+              if (JSON.stringify(temp_obj) !== JSON.stringify(empty_obj))
+                av_lvl2_data.push(temp_obj);
+
               that.setState({
                 parts: distinct_av_data,
                 lvl2_parts: av_lvl2_data,
@@ -243,18 +271,17 @@ class PartsContainer extends Component {
   exportCsv(event) {
     if (this.state.lvl2_status) {
       let csv = this.state.parts;
-      console.log("csv", csv);
 
       let csvRow = [];
 
-      let A = [["Specific_AV", "Generic_AV", "Description"]];
+      let A = [["Specific%20AV", "Generic%20AV", "Description"]];
 
       for (let i = 0; i < csv.length; i++) {
         A.push([csv[i].specific_av, csv[i].generic_av, csv[i].description]);
       }
 
       for (let i = 0; i < A.length; ++i) {
-        csvRow.push(A[i].join(","));
+        csvRow.push(A[i].join(",").split(" ").join("%20"));
       }
 
       let csvString = csvRow.join("%0A");
@@ -269,11 +296,12 @@ class PartsContainer extends Component {
       console.warn(csvString);
     } else {
       let csv = this.state.lvl2_parts;
-      console.log("csv", csv);
 
       let csvRow = [];
 
-      let A = [["Specific_AV", "Level_2_AV", "Generic_AV", "Description"]];
+      let A = [
+        ["Specific%20AV", "BOM%20Components", "Generic%20AV", "Description"],
+      ];
 
       for (let i = 0; i < csv.length; i++) {
         A.push([
@@ -285,7 +313,7 @@ class PartsContainer extends Component {
       }
 
       for (let i = 0; i < A.length; ++i) {
-        csvRow.push(A[i].join(","));
+        csvRow.push(A[i].join(",").split(" ").join("%20"));
       }
 
       let csvString = csvRow.join("%0A");
@@ -392,6 +420,7 @@ class PartsContainer extends Component {
     var that = this;
     event.preventDefault();
 
+    // av only for testing purposes (to be changed to AY104AV )
     if (this.refs.generic_av.value === "AY101AV") {
       let data = {
         generic_av: this.refs.generic_av.value,
