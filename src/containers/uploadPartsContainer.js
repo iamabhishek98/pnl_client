@@ -5,18 +5,23 @@ import { CSVReader } from "react-papaparse";
 import { alertMessage } from "./helperFunctions";
 import auth from "../auth";
 
-class AddPartsContainer extends Component {
+class UploadPartsContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       title: "Upload Parts",
       name: auth.name,
+      email: auth.email,
       csvData: [],
       formattedCSVData: [],
       region: "no region",
       viewContents: false,
       redirectHome: false,
     };
+  }
+
+  componentDidMount() {
+    console.log("COMPONENT HAS MOUNTED");
   }
 
   reset() {
@@ -143,7 +148,12 @@ class AddPartsContainer extends Component {
         if (columns[j].toLowerCase() === "types of services requested") {
           let temp = currentline[j].slice().split("_");
           obj["generic_av"] = temp[0];
-          obj["description"] = temp[1];
+          obj["bom"] = temp[1].toLowerCase() === "bom" ? 1 : 0;
+          if (temp[2]) {
+            obj["components"] = temp.slice(2).join("_");
+          }
+        } else if (columns[j].toLowerCase() === "description") {
+          obj["description"] = currentline[j];
         } else if (
           columns[j].toLowerCase() === "materialnumber" &&
           currentline[j].length > 2
@@ -152,6 +162,10 @@ class AddPartsContainer extends Component {
         ) {
           obj["specific_av"] = currentline[j];
         }
+      }
+
+      if (!obj.components) {
+        obj.components = "";
       }
 
       if (obj.specific_av !== undefined) {
@@ -164,6 +178,8 @@ class AddPartsContainer extends Component {
     let empty_obj = {
       specific_av: "",
       generic_av: "",
+      bom: "",
+      components: "",
       description: "",
       level_2_av: [],
     };
@@ -179,6 +195,8 @@ class AddPartsContainer extends Component {
         temp_obj.specific_av = csvResult[i].specific_av;
         temp_obj.generic_av = csvResult[i].generic_av;
         temp_obj.description = csvResult[i].description;
+        temp_obj.bom = csvResult[i].bom;
+        temp_obj.components = csvResult[i].components;
       } else {
         temp_obj.level_2_av.push(csvResult[i].specific_av);
       }
@@ -233,6 +251,7 @@ class AddPartsContainer extends Component {
                 ) {
                   that.exportCsv();
                 }
+                that.setState({ redirectHome: true });
               } else {
                 alertMessage("there were errors with inserting some rows!");
               }
@@ -273,33 +292,25 @@ class AddPartsContainer extends Component {
 
   exportCsv() {
     let csv = this.state.formattedCSVData;
-    let region = this.state.region;
-    console.log("csv", csv);
 
     let csvRow = [];
 
     let A = [
       [
-        "AV_P/N",
-        "AV_LEVEL_2",
-        "AV_P/N_Description",
-        "Country_Fulfil",
-        "WW_Ref_Price_(2xcost)",
+        "Part%20Number",
+        "Description",
+        "Cost",
+        "Make/Buy%20Flag",
+        "Plant%20Code",
       ],
     ];
 
     for (let i = 0; i < csv.length; i++) {
-      A.push([
-        csv[i].specific_av,
-        JSON.stringify(csv[i].level_2_av).replace(",", ";"),
-        csv[i].description,
-        region.toUpperCase(),
-        "0.04",
-      ]);
+      A.push([csv[i].specific_av, csv[i].description, "$0.02", "BUY", "0905"]);
     }
-    // console.log("A", A[1]);
+
     for (let i = 0; i < A.length; ++i) {
-      csvRow.push(A[i].join(","));
+      csvRow.push(A[i].join(",").split(" ").join("%20"));
     }
 
     let csvString = csvRow.join("%0A");
@@ -310,18 +321,38 @@ class AddPartsContainer extends Component {
     a.download = "Uploaded Data.csv";
     document.body.appendChild(a);
     a.click();
-
-    console.warn(csvString);
   }
 
-  sendEmail() {
+  sendEmail(event) {
+    event.preventDefault();
+
+    var that = this;
+
+    let formattedCSVData = that.state.formattedCSVData;
+
+    let data = [];
+    for (let i = 0; i < formattedCSVData.length; i++) {
+      let temp = {};
+      temp["Generic AV"] = formattedCSVData[i].generic_av;
+      temp["Specific AV"] = formattedCSVData[i].specific_av;
+      temp.Description = formattedCSVData[i].description;
+      temp.Region = formattedCSVData[i].region;
+      temp.Price = "$0.04";
+      data.push(temp);
+    }
+
+    const emailData = {
+      data: data,
+      email: that.state.email,
+    };
+
     let request = new Request(
-      `${process.env.REACT_APP_API_URL}api/send-email`,
+      `${process.env.REACT_APP_API_URL}api/email-upload`,
 
       {
         method: "POST",
         headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(this.state.formattedCSVData),
+        body: JSON.stringify(emailData),
       }
     );
 
@@ -329,8 +360,10 @@ class AddPartsContainer extends Component {
     fetch(request, { mode: "cors" })
       .then(function (response) {
         response.json().then(function (data) {
-          console.log(data);
-          alertMessage("Email Sent!");
+          if (data.message.toLowerCase() === "email sent") {
+            console.log(data);
+            alertMessage("Email Sent!");
+          }
         });
       })
       .catch(function (err) {
@@ -351,23 +384,15 @@ class AddPartsContainer extends Component {
 
       if (renderStatus) {
         return jsonData.map((part, index) => {
-          const { specific_av, description, region, level_2_av } = part; //destructuring
+          const { specific_av, generic_av, description, region } = part; //destructuring
           return (
             <tr key={index}>
               <td>{index + 1}</td>
+              <td>{generic_av}</td>
               <td>{specific_av}</td>
-              <td>
-                {
-                  // not working
-                  JSON.stringify(level_2_av)
-                    .replace('","', ";")
-                    .replace('"["', "")
-                    .replace('"]"', "")
-                }
-              </td>
               <td>{description}</td>
               <td>{region}</td>
-              <td>0.04</td>
+              <td>$0.04</td>
             </tr>
           );
         });
@@ -391,7 +416,7 @@ class AddPartsContainer extends Component {
     let title = this.state.title;
     let viewContents = this.state.viewContents;
     return (
-      <div class="App">
+      <div className="App">
         <br />
         <h1>
           <b>{title}</b>
@@ -422,14 +447,14 @@ class AddPartsContainer extends Component {
             <div>
               <button
                 onClick={this.viewContents.bind(this)}
-                className="w3-button w3-roundw3-blue react_button"
+                className="w3-button w3-round w3-blue react_button"
               >
                 View Contents
               </button>
               <br />
               <button
                 onClick={this.uploadData.bind(this)}
-                className="w3-button w3-roundw3-blue react_button"
+                className="w3-button w3-round w3-blue react_button"
               >
                 Upload
               </button>
@@ -439,45 +464,41 @@ class AddPartsContainer extends Component {
             <div>
               <button
                 onClick={this.uploadData.bind(this)}
-                className="w3-button w3-roundw3-blue react_button"
+                className="w3-button w3-round w3-blue react_button"
               >
                 Upload
               </button>
               <br />
               <button
                 onClick={this.sendEmail.bind(this)}
-                className="w3-button w3-roundw3-light-grey react_button"
+                className="w3-button w3-round w3-light-grey react_button"
               >
                 Auto-Generate Email
+              </button>
+              <button className="w3-button w3-round w3-light-grey react_button">
+                <a href="mailto:user@example.com?subject=Email%20Template">
+                  Send Email Manually
+                </a>
               </button>
               <br />
 
               <table className="partsTable">
                 <tr>
                   <th>ID</th>
-                  <th>AV P/N</th>
-                  <th>AV Level 2</th>
-                  <th>AV P/N Description</th>
-                  <th>Country Fulfil</th>
-                  <th>WW Ref Price (2 x cost)</th>
+                  <th>Generic AV</th>
+                  <th>Specific AV</th>
+                  <th>Description</th>
+                  <th>Region</th>
+                  <th>Price</th>
                 </tr>
                 {this.renderTableData(true)}
               </table>
               <br />
             </div>
           )}
-          {/* <br /> */}
         </form>
-        {/* {viewContents && (
-          <button
-            onClick={this.exportCsv.bind(this)}
-            className="w3-button w3-roundw3-blue react_button"
-          >
-            Export
-          </button>
-        )} */}
         <Link to="/home">
-          <button className="w3-button w3-roundw3-light-grey react_button">
+          <button className="w3-button w3-round w3-light-grey react_button">
             Home Page
           </button>
         </Link>
@@ -492,7 +513,7 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { csv } from "d3";
 
-class AddPartsContainer extends Component {
+class UploadPartsContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -560,14 +581,14 @@ class AddPartsContainer extends Component {
 
           <button
             onClick={this.uploadFile.bind(this)}
-            className="w3-button w3-roundw3-black react_button"
+            className="w3-button w3-round w3-black react_button"
           >
             Upload
           </button>
         </form>
         <br />
         <Link to="/home">
-          <button className="w3-button w3-roundw3-black react_button">Main Page</button>
+          <button className="w3-button w3-round w3-black react_button">Main Page</button>
         </Link>
       </div>
     );
@@ -575,4 +596,4 @@ class AddPartsContainer extends Component {
 }
 */
 
-export default AddPartsContainer;
+export default UploadPartsContainer;

@@ -2,6 +2,7 @@ class Auth {
   constructor() {
     this.authenticated = false;
     this.name = "";
+    this.email = "";
   }
 
   checkUser() {

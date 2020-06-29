@@ -101,6 +101,8 @@ class RegisterContainer extends Component {
             placeholder="Password"
           />
           <br />
+          <text style={{ color: "black" }}>*Do not Use HP Password</text>
+          <br />
           <button
             onClick={this.registerUser.bind(this)}
             className="w3-button w3-round w3-blue react_button"

@@ -40,6 +40,7 @@ class LoginContainer extends Component {
             console.log(data);
             if (data.length === 1) {
               auth.name = data[0].name;
+              auth.email = data[0].email;
               auth.login(() => {
                 that.props.history.push("./home");
               });

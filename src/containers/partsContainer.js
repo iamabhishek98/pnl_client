@@ -9,8 +9,10 @@ class PartsContainer extends Component {
     this.state = {
       name: auth.name,
       all_av: [],
-      all_av_status: true,
+      all_av_status: false,
       available_av: [],
+      av_components: [],
+      av_components_status: false,
       requested_parts: [],
       parts: undefined,
       lvl2_parts: undefined,
@@ -58,6 +60,8 @@ class PartsContainer extends Component {
     this.setState({
       all_av: [],
       available_av: [],
+      av_components_status: [],
+      av_components_status: false,
       requested_parts: [],
       parts: undefined,
       lvl2_parts: undefined,
@@ -72,6 +76,8 @@ class PartsContainer extends Component {
     if (detailsForm !== null) detailsForm.reset();
 
     this.setState({
+      av_components_status: [],
+      av_components_status: false,
       requested_parts: [],
       parts: undefined,
       lvl2_parts: undefined,
@@ -88,14 +94,25 @@ class PartsContainer extends Component {
     let that = this;
 
     event.preventDefault();
+
+    let av_components = "";
+    if (this.refs.av_components.value) {
+      av_components = this.refs.av_components.value;
+    }
+
     let data = {
       generic_av: this.refs.generic_av.value,
       quantity: this.refs.quantity.value,
+      components: av_components,
     };
 
     console.log(data);
 
-    if (data.generic_av !== "no generic av" && data.quantity > 0) {
+    if (
+      data.generic_av !== "no generic av" &&
+      data.quantity > 0 &&
+      (data.components === "" || data.components !== "no component")
+    ) {
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/get-parts`,
 
@@ -171,9 +188,7 @@ class PartsContainer extends Component {
           window.location.reload(true);
         });
     } else {
-      alertMessage(
-        "Please select one of the available AVs and fill up the quantity field!"
-      );
+      alertMessage("Please fill up the required fields!");
     }
   }
 
@@ -373,6 +388,46 @@ class PartsContainer extends Component {
     });
   }
 
+  getComponents(event) {
+    var that = this;
+    event.preventDefault();
+
+    if (this.refs.generic_av.value === "AY101AV") {
+      let data = {
+        generic_av: this.refs.generic_av.value,
+      };
+
+      let request = new Request(
+        `${process.env.REACT_APP_API_URL}api/get-components`,
+
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
+
+      // xmlhttprequest()
+      fetch(request, { mode: "cors" })
+        .then(function (response) {
+          response.json().then(function (data) {
+            if (data.message.toLowerCase() === "components found") {
+              console.log(data);
+              that.setState({
+                av_components: data.data,
+                av_components_status: true,
+              });
+              console.log(that.state);
+            }
+          });
+        })
+        .catch(function (err) {
+          alertMessage("Server Error!");
+          window.location.reload(true);
+        });
+    }
+  }
+
   // show loading icon when data is being retrieved
   render() {
     let name = titleCase(this.state.name);
@@ -383,6 +438,10 @@ class PartsContainer extends Component {
     } else {
       parts = this.state.lvl2_parts;
     }
+
+    let av_components = this.state.av_components;
+    let av_components_status = this.state.av_components_status;
+
     let all_parts = this.state.all_av;
     let all_parts_status = this.state.all_av_status;
 
@@ -395,7 +454,11 @@ class PartsContainer extends Component {
         <form id="getPartsForm">
           {available_av.length > 0 && (
             <div>
-              <select className="input_text getParts_input" ref="generic_av">
+              <select
+                onChange={this.getComponents.bind(this)}
+                className="input_text getParts_input"
+                ref="generic_av"
+              >
                 <option value="no generic av">Select Generic AV</option>
                 <hr />
                 {available_av.map((available_av) => (
@@ -414,6 +477,25 @@ class PartsContainer extends Component {
                 min="1"
               />
               <br />
+
+              {av_components_status && (
+                <select
+                  className="input_text getParts_input"
+                  ref="av_components"
+                >
+                  <option value="no component">Select Component</option>
+                  <hr />
+                  {av_components.map((av_components) => (
+                    <option
+                      key={av_components.components}
+                      value={av_components.components}
+                    >
+                      {av_components.components}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {av_components_status && <br />}
               <button
                 onClick={this.getParts.bind(this)}
                 className="w3-button w3-round w3-blue react_button"
@@ -480,7 +562,7 @@ class PartsContainer extends Component {
                   <tr>
                     <th>ID</th>
                     <th>Specific AV</th>
-                    <th>Level 2 AV</th>
+                    <th>BOM Components</th>
                     <th>Generic AV</th>
                     <th>Description</th>
                   </tr>
@@ -537,7 +619,7 @@ class PartsContainer extends Component {
           </button>
         </Link>
         <br />
-        {all_parts_status && (
+        {!all_parts_status && (
           <button
             onClick={this.allData.bind(this)}
             className="w3-button w3-round w3-light-grey react_button"
@@ -545,7 +627,7 @@ class PartsContainer extends Component {
             View Buffer
           </button>
         )}
-        {!all_parts_status && (
+        {all_parts_status && (
           <div>
             <button
               onClick={this.allData.bind(this)}
@@ -563,6 +645,7 @@ class PartsContainer extends Component {
             </table>
           </div>
         )}
+        <br />
       </div>
     );
   }

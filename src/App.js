@@ -13,7 +13,7 @@ import NotFoundPage from "./pages/404";
 import login from "./pages/login";
 import logout from "./pages/logout";
 import register from "./pages/register";
-import addParts from "./pages/addParts";
+import uploadParts from "./pages/uploadParts";
 import ProtectedRoute from "./protectedRoute";
 
 class App extends Component {
@@ -26,7 +26,7 @@ class App extends Component {
           <ProtectedRoute exact path="/home" component={getParts} />
           <ProtectedRoute exact path="/return" component={returnParts} />
           <ProtectedRoute exact path="/delete" component={deleteParts} />
-          <ProtectedRoute exact path="/add" component={addParts} />
+          <ProtectedRoute exact path="/add" component={uploadParts} />
           <ProtectedRoute exact path="/logout" component={logout} />
           <Route exact path="/404" component={NotFoundPage} />
           <Redirect to="/404" />
