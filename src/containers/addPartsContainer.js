@@ -200,7 +200,8 @@ class AddPartsContainer extends Component {
         region: this.refs.region.value,
         date_of_upload: new Date(),
       };
-      console.log("data", data);
+
+      // console.log("data", data);
 
       if (data.region !== "no region") {
         this.setState({
@@ -210,7 +211,7 @@ class AddPartsContainer extends Component {
         this.renderTableData(false);
 
         let request = new Request(
-          `${process.env.REACT_APP_API_URL}/api/upload-data`,
+          `${process.env.REACT_APP_API_URL}api/upload-data`,
           {
             method: "POST",
             headers: new Headers({ "Content-Type": "application/json" }),

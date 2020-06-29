@@ -26,7 +26,7 @@ class RegisterContainer extends Component {
 
     if (data.name !== "" && data.email !== "" && data.password !== "") {
       let request = new Request(
-        `${process.env.REACT_APP_API_URL}/api/register-user`,
+        `${process.env.REACT_APP_API_URL}api/register-user`,
         {
           method: "POST",
           headers: new Headers({ "Content-Type": "application/json" }),
