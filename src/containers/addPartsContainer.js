@@ -227,9 +227,12 @@ class AddPartsContainer extends Component {
               if (data.status) {
                 alertMessage("data inserted successfully!");
                 if (
-                  window.confirm("Do you want to download the uploaded data?")
+                  window.confirm("Do you want to download the icost template?")
                 ) {
                   that.exportCsv();
+                }
+                if (window.confirm("Do you want to email the uploaded data?")) {
+                  that.sendEmail();
                 }
                 that.setState({ redirectHome: true });
               } else {
@@ -311,6 +314,30 @@ class AddPartsContainer extends Component {
     a.click();
 
     console.warn(csvString);
+  }
+
+  sendEmail() {
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/send-email`,
+
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(this.state.formattedCSVData),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
+      .then(function (response) {
+        response.json().then(function (data) {
+          console.log(data);
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      });
   }
 
   renderTableData(renderStatus) {
