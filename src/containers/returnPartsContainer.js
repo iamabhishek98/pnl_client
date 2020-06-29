@@ -148,14 +148,14 @@ class ReturnPartsContainer extends Component {
             <br />
             <button
               onClick={this.returnPart.bind(this)}
-              className="w3-button w3-blue react_button"
+              className="w3-button w3-round w3-blue react_button"
             >
               Return
             </button>
           </form>
         )}
         <Link to="/home">
-          <button className="w3-button w3-light-grey react_button">
+          <button className="w3-button w3-round w3-light-grey react_button">
             Home Page
           </button>
         </Link>

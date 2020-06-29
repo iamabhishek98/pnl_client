@@ -86,16 +86,12 @@ class LoginContainer extends Component {
           <br />
           <button
             onClick={this.checkUser.bind(this)}
-            className="w3-button w3-blue react_button"
+            className="w3-button w3-round w3-blue react_button"
           >
             Login
           </button>
         </form>
-        <Link to="/register">
-          <button className="w3-button w3-light-grey react_button">
-            Register
-          </button>
-        </Link>
+        <Link to="/register">Don't have an account? Sign Up!</Link>
       </div>
     );
   }

@@ -103,16 +103,12 @@ class RegisterContainer extends Component {
           <br />
           <button
             onClick={this.registerUser.bind(this)}
-            className="w3-button w3-blue react_button"
+            className="w3-button w3-round w3-blue react_button"
           >
             Register
           </button>
         </form>
-        <Link to="/">
-          <button className="w3-button w3-light-grey react_button">
-            Login
-          </button>
-        </Link>
+        <Link to="/">Back to Login</Link>
       </div>
     );
   }

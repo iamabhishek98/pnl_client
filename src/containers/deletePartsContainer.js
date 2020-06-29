@@ -203,7 +203,7 @@ class DeletePartsContainer extends Component {
             <br />
             <button
               onClick={this.deletePart.bind(this)}
-              className="w3-button w3-red react_button"
+              className="w3-button w3-round w3-red react_button"
             >
               Delete
             </button>
@@ -215,7 +215,7 @@ class DeletePartsContainer extends Component {
           <br />
           <button
             onClick={this.getPart.bind(this)}
-            className="w3-button w3-blue react_button"
+            className="w3-button w3-round w3-blue react_button"
           >
             Get Part
           </button>
@@ -233,20 +233,20 @@ class DeletePartsContainer extends Component {
             </ul>
             <button
               onClick={this.deletePart.bind(this)}
-              className="w3-button w3-red react_button"
+              className="w3-button w3-round w3-red react_button"
             >
               Delete
             </button>
             <button
               onClick={this.cancelPart.bind(this)}
-              className="w3-button w3-light-grey react_button"
+              className="w3-button w3-round w3-light-grey react_button"
             >
               Cancel
             </button>
           </div>
         )} */}
         <Link to="/home">
-          <button className="w3-button w3-light-grey react_button">
+          <button className="w3-button w3-round w3-light-grey react_button">
             Home Page
           </button>
         </Link>

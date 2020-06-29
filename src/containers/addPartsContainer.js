@@ -9,7 +9,7 @@ class AddPartsContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: "Add Parts",
+      title: "Upload Parts",
       name: auth.name,
       csvData: [],
       formattedCSVData: [],
@@ -227,14 +227,12 @@ class AddPartsContainer extends Component {
               if (data.status) {
                 alertMessage("data inserted successfully!");
                 if (
-                  window.confirm("Do you want to download the icost template?")
+                  window.confirm(
+                    "Do you want to download the icost submission template?"
+                  )
                 ) {
                   that.exportCsv();
                 }
-                if (window.confirm("Do you want to email the uploaded data?")) {
-                  that.sendEmail();
-                }
-                that.setState({ redirectHome: true });
               } else {
                 alertMessage("there were errors with inserting some rows!");
               }
@@ -332,6 +330,7 @@ class AddPartsContainer extends Component {
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
+          alertMessage("Email Sent!");
         });
       })
       .catch(function (err) {
@@ -423,14 +422,14 @@ class AddPartsContainer extends Component {
             <div>
               <button
                 onClick={this.viewContents.bind(this)}
-                className="w3-button w3-blue react_button"
+                className="w3-button w3-roundw3-blue react_button"
               >
                 View Contents
               </button>
               <br />
               <button
                 onClick={this.uploadData.bind(this)}
-                className="w3-button w3-blue react_button"
+                className="w3-button w3-roundw3-blue react_button"
               >
                 Upload
               </button>
@@ -440,11 +439,19 @@ class AddPartsContainer extends Component {
             <div>
               <button
                 onClick={this.uploadData.bind(this)}
-                className="w3-button w3-blue react_button"
+                className="w3-button w3-roundw3-blue react_button"
               >
                 Upload
               </button>
               <br />
+              <button
+                onClick={this.sendEmail.bind(this)}
+                className="w3-button w3-roundw3-light-grey react_button"
+              >
+                Auto-Generate Email
+              </button>
+              <br />
+
               <table className="partsTable">
                 <tr>
                   <th>ID</th>
@@ -464,13 +471,13 @@ class AddPartsContainer extends Component {
         {/* {viewContents && (
           <button
             onClick={this.exportCsv.bind(this)}
-            className="w3-button w3-blue react_button"
+            className="w3-button w3-roundw3-blue react_button"
           >
             Export
           </button>
         )} */}
         <Link to="/home">
-          <button className="w3-button w3-light-grey react_button">
+          <button className="w3-button w3-roundw3-light-grey react_button">
             Home Page
           </button>
         </Link>
@@ -553,14 +560,14 @@ class AddPartsContainer extends Component {
 
           <button
             onClick={this.uploadFile.bind(this)}
-            className="w3-button w3-black react_button"
+            className="w3-button w3-roundw3-black react_button"
           >
             Upload
           </button>
         </form>
         <br />
         <Link to="/home">
-          <button className="w3-button w3-black react_button">Main Page</button>
+          <button className="w3-button w3-roundw3-black react_button">Main Page</button>
         </Link>
       </div>
     );

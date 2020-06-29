@@ -12,7 +12,7 @@ class LogoutContainer extends Component {
             <b>Are you sure you want to logout?</b>
           </h1>
           <button
-            className="w3-button w3-red react_button"
+            className="w3-button w3-round w3-red react_button"
             onClick={() => {
               auth.logout(() => {
                 // put if statement here
@@ -24,7 +24,9 @@ class LogoutContainer extends Component {
             Yes
           </button>
           <Link to="/home">
-            <button className="w3-button w3-light-grey react_button">No</button>
+            <button className="w3-button w3-round w3-light-grey react_button">
+              No
+            </button>
           </Link>
         </div>
       </main>

@@ -8,6 +8,8 @@ class PartsContainer extends Component {
     super(props);
     this.state = {
       name: auth.name,
+      all_av: [],
+      all_av_status: true,
       available_av: [],
       requested_parts: [],
       parts: undefined,
@@ -54,6 +56,7 @@ class PartsContainer extends Component {
     if (detailsForm !== null) detailsForm.reset();
 
     this.setState({
+      all_av: [],
       available_av: [],
       requested_parts: [],
       parts: undefined,
@@ -282,6 +285,32 @@ class PartsContainer extends Component {
       console.warn(csvString);
     }
   }
+
+  allData(event) {
+    var that = this;
+
+    that.setState({ all_av_status: !that.state.all_av_status });
+
+    fetch(`${process.env.REACT_APP_API_URL}api/get-all_generic_av`)
+      .then(function (response) {
+        response.json().then(function (data) {
+          console.log(data);
+          if (data.message.toLowerCase() !== "no generic avs found") {
+            that.setState({
+              all_av: data.data,
+            });
+            console.log(data.data);
+          } else {
+            alertMessage("no generic avs found!");
+          }
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      });
+  }
+
   /*renderTableHeader() {
     let header = Object.keys(this.state.students[0])
     return header.map((key, index) => {
@@ -331,6 +360,19 @@ class PartsContainer extends Component {
     });
   }
 
+  renderTableAllData(parts) {
+    return parts.map((part, index) => {
+      const { generic_av, quantity } = part; //destructuring
+      return (
+        <tr key={index}>
+          <td>{index + 1}</td>
+          <td>{generic_av}</td>
+          <td>{quantity}</td>
+        </tr>
+      );
+    });
+  }
+
   // show loading icon when data is being retrieved
   render() {
     let name = titleCase(this.state.name);
@@ -341,6 +383,9 @@ class PartsContainer extends Component {
     } else {
       parts = this.state.lvl2_parts;
     }
+    let all_parts = this.state.all_av;
+    let all_parts_status = this.state.all_av_status;
+
     return (
       <div className="App">
         <br />
@@ -371,7 +416,7 @@ class PartsContainer extends Component {
               <br />
               <button
                 onClick={this.getParts.bind(this)}
-                className="w3-button w3-blue react_button"
+                className="w3-button w3-round w3-blue react_button"
               >
                 Get Parts
               </button>
@@ -395,13 +440,13 @@ class PartsContainer extends Component {
               <div>
                 <button
                   onClick={this.toggleDisplayParts.bind(this)}
-                  className="w3-button w3-light-grey react_button"
+                  className="w3-button w3-round w3-light-grey react_button"
                 >
                   View Level 2 AVs
                 </button>
                 <button
                   onClick={this.exportCsv.bind(this)}
-                  className="w3-button w3-light-grey react_button"
+                  className="w3-button w3-round w3-light-grey react_button"
                 >
                   Download Table
                 </button>
@@ -420,13 +465,13 @@ class PartsContainer extends Component {
               <div>
                 <button
                   onClick={this.toggleDisplayParts.bind(this)}
-                  className="w3-button w3-light-grey react_button"
+                  className="w3-button w3-round w3-light-grey react_button"
                 >
                   Hide Level 2 AVs
                 </button>
                 <button
                   onClick={this.exportCsv.bind(this)}
-                  className="w3-button w3-light-grey react_button"
+                  className="w3-button w3-round w3-light-grey react_button"
                 >
                   Download Table
                 </button>
@@ -456,13 +501,13 @@ class PartsContainer extends Component {
               <br />
               <button
                 onClick={this.updatePart.bind(this)}
-                className="w3-button w3-blue react_button"
+                className="w3-button w3-round w3-blue react_button"
               >
                 Borrow Parts
               </button>
               <button
                 onClick={this.cancelBorrow.bind(this)}
-                className="w3-button w3-light-grey react_button"
+                className="w3-button w3-round w3-light-grey react_button"
               >
                 Cancel
               </button>
@@ -471,24 +516,53 @@ class PartsContainer extends Component {
           </div>
         )}
         <Link to="/return">
-          <button className="w3-button w3-light-grey react_button">
+          <button className="w3-button w3-round w3-light-grey react_button">
             Return Parts
           </button>
         </Link>
         <Link to="/add">
-          <button className="w3-button w3-light-grey react_button">
-            Add Parts
+          <button className="w3-button w3-round w3-light-grey react_button">
+            Upload Parts
           </button>
         </Link>
         <Link to="/delete">
-          <button className="w3-button w3-light-grey react_button">
+          <button className="w3-button w3-round w3-light-grey react_button">
             Delete Parts
           </button>
         </Link>
         <br />
         <Link to="/logout">
-          <button className="w3-button w3-red react_button">Logout</button>
+          <button className="w3-button w3-round w3-red react_button">
+            Logout
+          </button>
         </Link>
+        <br />
+        {all_parts_status && (
+          <button
+            onClick={this.allData.bind(this)}
+            className="w3-button w3-round w3-light-grey react_button"
+          >
+            View Buffer
+          </button>
+        )}
+        {!all_parts_status && (
+          <div>
+            <button
+              onClick={this.allData.bind(this)}
+              className="w3-button w3-round w3-light-grey react_button"
+            >
+              Hide Buffer
+            </button>
+            <table className="partsTable">
+              <tr>
+                <th>ID</th>
+                <th>Generic AV</th>
+                <th>Quantity</th>
+              </tr>
+              {this.renderTableAllData(all_parts)}
+            </table>
+          </div>
+        )}
       </div>
     );
   }
