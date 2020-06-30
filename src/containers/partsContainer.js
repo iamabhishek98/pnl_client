@@ -11,6 +11,8 @@ class PartsContainer extends Component {
       all_av: [],
       all_av_status: false,
       available_av: [],
+      av_regions: [],
+      av_regions_status: false,
       av_components: [],
       av_components_status: false,
       requested_parts: [],
@@ -60,6 +62,8 @@ class PartsContainer extends Component {
     this.setState({
       all_av: [],
       available_av: [],
+      av_regions: [],
+      av_regions_status: false,
       av_components_status: [],
       av_components_status: false,
       requested_parts: [],
@@ -90,8 +94,48 @@ class PartsContainer extends Component {
     });
   }
 
+  getRegions(event) {
+    let that = this;
+    event.preventDefault();
+
+    // av only for testing purposes (to be changed to AY104AV )
+
+    let data = {
+      generic_av: this.refs.generic_av.value,
+    };
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/get-regions`,
+
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
+      .then(function (response) {
+        response.json().then(function (data) {
+          if (data.message.toLowerCase() === "regions found") {
+            console.log(data);
+            that.setState({
+              av_regions: data.data,
+              av_regions_status: true,
+            });
+            console.log(that.state);
+          }
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      });
+  }
+
   getComponents(event) {
-    var that = this;
+    let that = this;
     event.preventDefault();
 
     // av only for testing purposes (to be changed to AY104AV )
@@ -99,6 +143,12 @@ class PartsContainer extends Component {
       let data = {
         generic_av: this.refs.generic_av.value,
       };
+
+      if (this.refs.av_regions && this.refs.av_regions.value !== "no region") {
+        data.region = this.refs.av_regions.value;
+      } else {
+        data.region = "";
+      }
 
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/get-components`,
@@ -120,7 +170,6 @@ class PartsContainer extends Component {
                 av_components: data.data,
                 av_components_status: true,
               });
-              console.log(that.state);
             }
           });
         })
@@ -129,6 +178,11 @@ class PartsContainer extends Component {
           window.location.reload(true);
         });
     }
+  }
+
+  getFields(event) {
+    this.getRegions(event);
+    this.getComponents(event);
   }
 
   getParts(event) {
@@ -144,14 +198,16 @@ class PartsContainer extends Component {
     let data = {
       generic_av: this.refs.generic_av.value,
       quantity: this.refs.quantity.value,
+      region: this.refs.av_regions.value,
       components: av_components,
     };
 
-    console.log(data);
+    console.log("yala", data);
 
     if (
       data.generic_av !== "no generic av" &&
       data.quantity > 0 &&
+      data.region !== "no region" &&
       (data.components === "" || data.components !== "no component")
     ) {
       let request = new Request(
@@ -371,7 +427,7 @@ class PartsContainer extends Component {
   }
 
   allData(event) {
-    var that = this;
+    let that = this;
 
     that.setState({ all_av_status: !that.state.all_av_status });
 
@@ -468,6 +524,9 @@ class PartsContainer extends Component {
       parts = this.state.lvl2_parts;
     }
 
+    let av_regions = this.state.av_regions;
+    let av_regions_status = this.state.av_regions_status;
+
     let av_components = this.state.av_components;
     let av_components_status = this.state.av_components_status;
 
@@ -484,7 +543,7 @@ class PartsContainer extends Component {
           {available_av.length > 0 && (
             <div>
               <select
-                onChange={this.getComponents.bind(this)}
+                onChange={this.getFields.bind(this)}
                 className="input_text getParts_input"
                 ref="generic_av"
               >
@@ -506,7 +565,22 @@ class PartsContainer extends Component {
                 min="1"
               />
               <br />
-
+              {av_regions_status && (
+                <select
+                  onChange={this.getComponents.bind(this)}
+                  className="input_text getParts_input"
+                  ref="av_regions"
+                >
+                  <option value="no region">Select Region</option>
+                  <hr />
+                  {av_regions.map((av_regions) => (
+                    <option key={av_regions.region} value={av_regions.region}>
+                      {av_regions.region.toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              )}
+              {av_regions_status && <br />}
               {av_components_status && (
                 <select
                   className="input_text getParts_input"
