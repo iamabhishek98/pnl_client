@@ -92,7 +92,7 @@ class LoginContainer extends Component {
             Login
           </button>
         </form>
-        <Link to="/register">Don't have an account? Sign Up!</Link>
+        <Link to="/register">Don't have an account? Sign up!</Link>
       </div>
     );
   }
