@@ -90,13 +90,54 @@ class PartsContainer extends Component {
     });
   }
 
+  getComponents(event) {
+    var that = this;
+    event.preventDefault();
+
+    // av only for testing purposes (to be changed to AY104AV )
+    if (this.refs.generic_av.value === "AY101AV") {
+      let data = {
+        generic_av: this.refs.generic_av.value,
+      };
+
+      let request = new Request(
+        `${process.env.REACT_APP_API_URL}api/get-components`,
+
+        {
+          method: "POST",
+          headers: new Headers({ "Content-Type": "application/json" }),
+          body: JSON.stringify(data),
+        }
+      );
+
+      // xmlhttprequest()
+      fetch(request, { mode: "cors" })
+        .then(function (response) {
+          response.json().then(function (data) {
+            if (data.message.toLowerCase() === "components found") {
+              console.log(data);
+              that.setState({
+                av_components: data.data,
+                av_components_status: true,
+              });
+              console.log(that.state);
+            }
+          });
+        })
+        .catch(function (err) {
+          alertMessage("Server Error!");
+          window.location.reload(true);
+        });
+    }
+  }
+
   getParts(event) {
     let that = this;
 
     event.preventDefault();
 
     let av_components = "";
-    if (this.refs.av_components.value) {
+    if (this.refs.av_components && this.refs.av_components.value) {
       av_components = this.refs.av_components.value;
     }
 
@@ -416,47 +457,6 @@ class PartsContainer extends Component {
     });
   }
 
-  getComponents(event) {
-    var that = this;
-    event.preventDefault();
-
-    // av only for testing purposes (to be changed to AY104AV )
-    if (this.refs.generic_av.value === "AY101AV") {
-      let data = {
-        generic_av: this.refs.generic_av.value,
-      };
-
-      let request = new Request(
-        `${process.env.REACT_APP_API_URL}api/get-components`,
-
-        {
-          method: "POST",
-          headers: new Headers({ "Content-Type": "application/json" }),
-          body: JSON.stringify(data),
-        }
-      );
-
-      // xmlhttprequest()
-      fetch(request, { mode: "cors" })
-        .then(function (response) {
-          response.json().then(function (data) {
-            if (data.message.toLowerCase() === "components found") {
-              console.log(data);
-              that.setState({
-                av_components: data.data,
-                av_components_status: true,
-              });
-              console.log(that.state);
-            }
-          });
-        })
-        .catch(function (err) {
-          alertMessage("Server Error!");
-          window.location.reload(true);
-        });
-    }
-  }
-
   // show loading icon when data is being retrieved
   render() {
     let name = titleCase(this.state.name);
@@ -553,7 +553,7 @@ class PartsContainer extends Component {
                   onClick={this.toggleDisplayParts.bind(this)}
                   className="w3-button w3-round w3-light-grey react_button"
                 >
-                  View Level 2 AVs
+                  View BOM Components
                 </button>
                 <button
                   onClick={this.exportCsv.bind(this)}
@@ -578,7 +578,7 @@ class PartsContainer extends Component {
                   onClick={this.toggleDisplayParts.bind(this)}
                   className="w3-button w3-round w3-light-grey react_button"
                 >
-                  Hide Level 2 AVs
+                  Hide BOM Components
                 </button>
                 <button
                   onClick={this.exportCsv.bind(this)}
