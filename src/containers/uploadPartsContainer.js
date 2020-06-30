@@ -433,8 +433,8 @@ class UploadPartsContainer extends Component {
             <option value="no region">Select Region</option>
             <hr />
             <option value="ams">AMS</option>
-            <option value="emea">EMEA</option>
             <option value="apj">APJ</option>
+            <option value="emea">EMEA</option>
           </select>
           <br />
           <br />

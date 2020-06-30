@@ -9,6 +9,7 @@ class PartsContainer extends Component {
     this.state = {
       name: auth.name,
       all_av: [],
+      all_av_filtered: [],
       all_av_status: false,
       available_av: [],
       av_regions: [],
@@ -61,6 +62,7 @@ class PartsContainer extends Component {
 
     this.setState({
       all_av: [],
+      all_av_filtered: [],
       available_av: [],
       av_regions: [],
       av_regions_status: false,
@@ -80,6 +82,8 @@ class PartsContainer extends Component {
     if (detailsForm !== null) detailsForm.reset();
 
     this.setState({
+      av_regions: [],
+      av_regions_status: false,
       av_components_status: [],
       av_components_status: false,
       requested_parts: [],
@@ -201,8 +205,6 @@ class PartsContainer extends Component {
       region: this.refs.av_regions.value,
       components: av_components,
     };
-
-    console.log("yala", data);
 
     if (
       data.generic_av !== "no generic av" &&
@@ -438,6 +440,7 @@ class PartsContainer extends Component {
           if (data.message.toLowerCase() !== "no generic avs found") {
             that.setState({
               all_av: data.data,
+              all_av_filtered: data.data,
             });
             console.log(data.data);
           } else {
@@ -449,6 +452,23 @@ class PartsContainer extends Component {
         alertMessage("Server Error!");
         window.location.reload(true);
       });
+  }
+
+  filterBuffer(event) {
+    event.preventDefault();
+    let filter_region = this.refs.buffer_region.value;
+    // console.log(this.state.all_av);
+    if (filter_region !== "no region") {
+      let data = [];
+      for (let i = 0; i < this.state.all_av.length; i++) {
+        if (this.state.all_av[i].region === filter_region) {
+          data.push(this.state.all_av[i]);
+        }
+      }
+      this.setState({ all_av_filtered: data });
+    } else {
+      this.setState({ all_av_filtered: this.state.all_av });
+    }
   }
 
   /*renderTableHeader() {
@@ -502,11 +522,12 @@ class PartsContainer extends Component {
 
   renderTableAllData(parts) {
     return parts.map((part, index) => {
-      const { generic_av, quantity } = part; //destructuring
+      const { generic_av, region, quantity } = part; //destructuring
       return (
         <tr key={index}>
           <td>{index + 1}</td>
           <td>{generic_av}</td>
+          <td>{region.toUpperCase()}</td>
           <td>{quantity}</td>
         </tr>
       );
@@ -530,7 +551,7 @@ class PartsContainer extends Component {
     let av_components = this.state.av_components;
     let av_components_status = this.state.av_components_status;
 
-    let all_parts = this.state.all_av;
+    let all_parts = this.state.all_av_filtered;
     let all_parts_status = this.state.all_av_status;
 
     return (
@@ -539,6 +560,13 @@ class PartsContainer extends Component {
         <h1>
           <b>Hello, {name}!</b>
         </h1>
+        <Link to="/logout">
+          <button className="w3-button w3-round w3-red react_button">
+            Logout
+          </button>
+        </Link>
+        <br />
+        <br />
         <form id="getPartsForm">
           {available_av.length > 0 && (
             <div>
@@ -715,12 +743,7 @@ class PartsContainer extends Component {
             Delete Parts
           </button>
         </Link>
-        <br />
-        <Link to="/logout">
-          <button className="w3-button w3-round w3-red react_button">
-            Logout
-          </button>
-        </Link>
+
         <br />
         {!all_parts_status && (
           <button
@@ -738,10 +761,24 @@ class PartsContainer extends Component {
             >
               Hide Buffer
             </button>
+            <br />
+            <select
+              onChange={this.filterBuffer.bind(this)}
+              className="input_text getParts_input"
+              ref="buffer_region"
+            >
+              <option value="no region">All Regions</option>
+              <hr />
+              <option value="ams">AMS</option>
+              <option value="apj">APJ</option>
+              <option value="emea">EMEA</option>
+            </select>
+            <br />
             <table className="partsTable">
               <tr>
                 <th>ID</th>
                 <th>Generic AV</th>
+                <th>Region</th>
                 <th>Quantity</th>
               </tr>
               {this.renderTableAllData(all_parts)}
