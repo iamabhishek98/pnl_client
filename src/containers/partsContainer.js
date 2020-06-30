@@ -95,7 +95,7 @@ class PartsContainer extends Component {
     event.preventDefault();
 
     // av only for testing purposes (to be changed to AY104AV )
-    if (this.refs.generic_av.value === "AY101AV") {
+    if (this.refs.generic_av.value === "AY104AV") {
       let data = {
         generic_av: this.refs.generic_av.value,
       };
