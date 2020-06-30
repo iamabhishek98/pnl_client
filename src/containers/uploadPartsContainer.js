@@ -402,6 +402,12 @@ class UploadPartsContainer extends Component {
     }
   }
 
+  openMailApp(event) {
+    event.preventDefault();
+    if (window.confirm("Do you want to open in mail app?"))
+      window.open(`mailto:${this.state.email}?subject=Email%20Template`);
+  }
+
   render() {
     if (this.state.redirectHome) {
       return (
@@ -415,7 +421,6 @@ class UploadPartsContainer extends Component {
 
     let title = this.state.title;
     let viewContents = this.state.viewContents;
-    let emailLink = `mailto:${this.state.email}?subject=Email%20Template`;
     return (
       <div className="App">
         <br />
@@ -476,10 +481,11 @@ class UploadPartsContainer extends Component {
               >
                 Auto-Generate Email
               </button>
-              <button className="w3-button w3-round w3-light-grey react_button">
-                <a href={emailLink} style={{ textDecoration: "none" }}>
-                  Send Email Manually
-                </a>
+              <button
+                onClick={this.openMailApp.bind(this)}
+                className="w3-button w3-round w3-light-grey react_button"
+              >
+                Send Email Manually
               </button>
               <br />
 
