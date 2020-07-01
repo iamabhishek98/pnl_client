@@ -306,7 +306,11 @@ class PartsContainer extends Component {
                 lvl2_parts: av_lvl2_data,
                 requested_parts: distinct_av_data,
               });
-              console.log("requested_parts", that.state.requested_parts);
+              if (that.refs.quantity.value > distinct_av_data.length) {
+                alertMessage(
+                  `only able to retrieve ${distinct_av_data.length} parts`
+                );
+              }
             }
           });
         })
