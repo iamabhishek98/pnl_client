@@ -308,7 +308,7 @@ class PartsContainer extends Component {
               });
               if (that.refs.quantity.value > distinct_av_data.length) {
                 alertMessage(
-                  `only able to retrieve ${distinct_av_data.length} parts`
+                  `only able to retrieve ${distinct_av_data.length} parts!`
                 );
               }
             }

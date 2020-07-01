@@ -363,6 +363,8 @@ class UploadPartsContainer extends Component {
           if (data.message.toLowerCase() === "email sent") {
             console.log(data);
             alertMessage("Email Sent!");
+          } else {
+            alertMessage("unable to send email!");
           }
         });
       })
