@@ -228,39 +228,41 @@ class UploadPartsContainer extends Component {
 
         this.renderTableData(false);
 
-        let request = new Request(
-          `${process.env.REACT_APP_API_URL}api/upload-data`,
-          {
-            method: "POST",
-            headers: new Headers({ "Content-Type": "application/json" }),
-            body: JSON.stringify(data),
-          }
-        );
+        if (window.confirm("Are you sure you want to upload the data?")) {
+          let request = new Request(
+            `${process.env.REACT_APP_API_URL}api/upload-data`,
+            {
+              method: "POST",
+              headers: new Headers({ "Content-Type": "application/json" }),
+              body: JSON.stringify(data),
+            }
+          );
 
-        // xmlhttprequest()
-        fetch(request, { mode: "cors" })
-          .then(function (response) {
-            response.json().then(function (data) {
-              console.log(data);
-              if (data.status) {
-                alertMessage("data inserted successfully!");
-                if (
-                  window.confirm(
-                    "Do you want to download the icost submission template?"
-                  )
-                ) {
-                  that.exportCsv();
+          // xmlhttprequest()
+          fetch(request, { mode: "cors" })
+            .then(function (response) {
+              response.json().then(function (data) {
+                console.log(data);
+                if (data.status) {
+                  alertMessage("data inserted successfully!");
+                  if (
+                    window.confirm(
+                      "Do you want to download the icost submission template?"
+                    )
+                  ) {
+                    that.exportCsv();
+                  }
+                  that.setState({ redirectHome: true });
+                } else {
+                  alertMessage("there were errors with inserting some rows!");
                 }
-                that.setState({ redirectHome: true });
-              } else {
-                alertMessage("there were errors with inserting some rows!");
-              }
+              });
+            })
+            .catch(function (err) {
+              alertMessage("Server Error!");
+              window.location.reload(true);
             });
-          })
-          .catch(function (err) {
-            alertMessage("Server Error!");
-            window.location.reload(true);
-          });
+        }
       } else {
         alertMessage("please select one of the available regions!");
       }
