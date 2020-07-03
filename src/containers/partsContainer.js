@@ -61,8 +61,6 @@ class PartsContainer extends Component {
     if (detailsForm !== null) detailsForm.reset();
 
     this.setState({
-      all_av: [],
-      all_av_filtered: [],
       available_av: [],
       av_regions: [],
       av_regions_status: false,
