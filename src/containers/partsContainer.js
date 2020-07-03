@@ -185,6 +185,15 @@ class PartsContainer extends Component {
   }
 
   getFields(event) {
+    this.setState({
+      av_regions: [],
+      av_regions_status: false,
+      av_components_status: [],
+      av_components_status: false,
+      requested_parts: [],
+      parts: undefined,
+      lvl2_parts: undefined,
+    });
     this.getRegions(event);
     this.getComponents(event);
   }
