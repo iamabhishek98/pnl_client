@@ -346,6 +346,7 @@ class UploadPartsContainer extends Component {
     const emailData = {
       data: data,
       email: that.state.email,
+      subject: "Auto-Generated Email Template",
     };
 
     let request = new Request(

@@ -8,6 +8,7 @@ class PartsContainer extends Component {
     super(props);
     this.state = {
       name: auth.name,
+      email: auth.email,
       all_av: [],
       all_av_filtered: [],
       all_av_status: false,
@@ -364,8 +365,13 @@ class PartsContainer extends Component {
             console.log(data);
             if (data.message.toLowerCase() === "data updated") {
               alertMessage("Parts Borrowed!");
-              that.resetForms();
-              that.componentDidMount();
+              that.setState({
+                all_av: [],
+                all_av_filtered: [],
+                all_av_status: false,
+              });
+              // that.resetForms();
+              // that.componentDidMount();
             }
           });
         })
@@ -439,7 +445,68 @@ class PartsContainer extends Component {
     }
   }
 
-  allData(event) {
+  emailTable(event) {
+    let that = this;
+    let tempData = [];
+    let emailData = [];
+
+    if (this.state.lvl2_status) {
+      tempData = JSON.parse(JSON.stringify(this.state.parts));
+      for (let i = 0; i < tempData.length; i++) {
+        let temp_obj = {};
+        temp_obj["Specific AV"] = tempData[i].specific_av;
+        temp_obj["Generic AV"] = tempData[i].generic_av;
+        temp_obj["Description"] = tempData[i].description;
+        emailData.push(temp_obj);
+      }
+    } else {
+      tempData = JSON.parse(JSON.stringify(this.state.lvl2_parts));
+      for (let i = 0; i < tempData.length; i++) {
+        let temp_obj = {};
+        temp_obj["Specific AV"] = tempData[i].specific_av;
+        temp_obj["BOM Components"] = tempData[i].level_2_av;
+        temp_obj["Generic AV"] = tempData[i].generic_av;
+        temp_obj["Description"] = tempData[i].description;
+        emailData.push(temp_obj);
+      }
+    }
+
+    console.log(tempData, emailData);
+
+    let data = {
+      email: that.state.email,
+      subject: "Retrieved Table Data",
+      data: emailData,
+    };
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/email-upload`,
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
+      .then(function (response) {
+        response.json().then(function (data) {
+          console.log(data);
+          if (data.message.toLowerCase() === "email sent") {
+            alertMessage("Email sent!");
+          } else {
+            alertMessage("unable to send email!");
+          }
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      });
+  }
+
+  allData() {
     let that = this;
 
     that.setState({ all_av_status: !that.state.all_av_status });
@@ -674,6 +741,12 @@ class PartsContainer extends Component {
                 >
                   Download Table
                 </button>
+                <button
+                  onClick={this.emailTable.bind(this)}
+                  className="w3-button w3-round w3-light-grey react_button"
+                >
+                  Email Table
+                </button>
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
@@ -699,7 +772,12 @@ class PartsContainer extends Component {
                 >
                   Download Table
                 </button>
-
+                <button
+                  onClick={this.emailTable.bind(this)}
+                  className="w3-button w3-round w3-light-grey react_button"
+                >
+                  Email Table
+                </button>
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
