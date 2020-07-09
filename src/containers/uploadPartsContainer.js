@@ -349,10 +349,31 @@ class UploadPartsContainer extends Component {
       data.push(temp);
     }
 
+    let to = "";
+    let cc = "";
+    let subject = "";
+    let body = "";
+    if (that.state.region === "apj") {
+      to = "PDLMARKETINGOPS@hp.com;";
+      cc = "paliwal@hp.com; Annie.Leong@hp.com;";
+      subject = "Setup Patsy, PLC, ILP (buffer CS AVs)";
+      body = `<p>Hi Team,<br/><br/>
+              Please help to setup PATSY, PLC & ILP for APJ countries and inform once done.</p>`;
+    } else {
+      to = "pdm_coe_pricing@hp.com; regionalpricing1@hp.com;";
+      cc = "gbs-pccs-hw-engr-team1@hp.com;";
+      subject = "CS AV Phweb and GPys Description update – Priority";
+      body = `<p>Hi Team,<br/><br/>
+              Request to update Phweb and GPSy for below AV’s:</p>`;
+    }
+
     const emailData = {
+      user: that.state.email,
+      to: to,
+      cc: cc,
+      subject: subject,
+      body: body,
       data: data,
-      email: that.state.email,
-      subject: "Auto-Generated Email Template",
     };
 
     let request = new Request(

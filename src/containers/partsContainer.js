@@ -476,7 +476,10 @@ class PartsContainer extends Component {
     console.log(tempData, emailData);
 
     let data = {
-      email: that.state.email,
+      user: that.state.email,
+      to: "",
+      cc: "",
+      body: "",
       subject: "Retrieved Table Data",
       data: emailData,
     };
