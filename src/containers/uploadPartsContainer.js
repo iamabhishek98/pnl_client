@@ -308,7 +308,13 @@ class UploadPartsContainer extends Component {
     ];
 
     for (let i = 0; i < csv.length; i++) {
-      A.push([csv[i].specific_av, csv[i].description, "$0.02", "BUY", "0905"]);
+      A.push([
+        csv[i].specific_av,
+        csv[i].description,
+        "$0.02",
+        "BUY",
+        "%810905",
+      ]);
     }
 
     for (let i = 0; i < A.length; ++i) {
@@ -320,7 +326,7 @@ class UploadPartsContainer extends Component {
     let a = document.createElement("a");
     a.href = "data:attachment/csv," + csvString;
     a.target = "_Blank";
-    a.download = "Uploaded Data.csv";
+    a.download = "Cost Upload Form.csv";
     document.body.appendChild(a);
     a.click();
   }
