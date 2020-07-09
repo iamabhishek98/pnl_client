@@ -254,7 +254,7 @@ class UploadPartsContainer extends Component {
                   }
                   that.setState({ redirectHome: true });
                 } else {
-                  alertMessage("there were errors with inserting some rows!");
+                  alertMessage("unable to upload data!");
                 }
               });
             })
