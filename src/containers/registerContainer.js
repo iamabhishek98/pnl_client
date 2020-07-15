@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { alertMessage } from "./helperFunctions";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class RegisterContainer extends Component {
   constructor() {
@@ -8,11 +9,12 @@ class RegisterContainer extends Component {
     this.state = {
       title: "Registration Page",
       redirectLogin: false,
+      loading: false,
     };
   }
 
   registerUser(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
 
@@ -25,6 +27,9 @@ class RegisterContainer extends Component {
     console.log(data);
 
     if (data.name !== "" && data.email !== "" && data.password !== "") {
+      that.setState({
+        loading: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/register-user`,
         {
@@ -56,6 +61,9 @@ class RegisterContainer extends Component {
         .catch(function (err) {
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading: false });
         });
     } else {
       alertMessage("Please fill up all the required fields!");
@@ -63,7 +71,7 @@ class RegisterContainer extends Component {
   }
 
   render() {
-    let title = this.state.title;
+    let { loading, title } = this.state;
     if (this.state.redirectLogin) {
       return (
         <Redirect
@@ -103,12 +111,12 @@ class RegisterContainer extends Component {
           <br />
           <text style={{ color: "black" }}>*Do not use HP password</text>
           <br />
-          <button
-            onClick={this.registerUser.bind(this)}
-            className="w3-button w3-round w3-blue react_button"
-          >
-            Register
-          </button>
+          <ButtonLoaderContainer
+            onButtonSubmit={this.registerUser.bind(this)}
+            text="Register"
+            color="blue"
+            loading={loading}
+          />
         </form>
         <Link to="/">Back to Login</Link>
       </div>
