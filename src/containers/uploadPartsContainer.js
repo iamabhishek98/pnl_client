@@ -347,17 +347,17 @@ class UploadPartsContainer extends Component {
       temp.Description = formattedCSVData[i].description;
       temp.Cost = "$0.02";
       temp["Make/Buy Flag"] = "BUY";
-      temp["Plant Code"] = "0905";
+      temp["Plant Code"] = "'0905";
       data.push(temp);
     }
 
-    let current_date = new Date();
+    const current_date = new Date();
 
     const emailData = {
       user: that.state.email,
-      subject: `Parts Uploaded Sucessfully on ${current_date.toDateString()} by ${titleCase(
+      subject: `Parts Uploaded Successfully by ${titleCase(
         that.state.name
-      )}`,
+      )} on ${current_date.toDateString()}`,
       data: data,
       attachment: "iCost Template",
     };

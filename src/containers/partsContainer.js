@@ -24,7 +24,7 @@ class PartsContainer extends Component {
       lvl2_status: true,
       loading_get_parts: false,
       loading_update_parts: false,
-      loading_email: false,
+      // loading_email: false,
       loading_buffer: false,
     };
   }
@@ -381,6 +381,7 @@ class PartsContainer extends Component {
           response.json().then(function (data) {
             console.log(data);
             if (data.message.toLowerCase() === "data updated") {
+              that.emailTable();
               alertMessage("Parts Borrowed!");
               that.setState({
                 all_av: [],
@@ -406,6 +407,7 @@ class PartsContainer extends Component {
     }
   }
 
+  // not being used currently
   exportCsv(event) {
     if (this.state.lvl2_status) {
       let csv = this.state.parts;
@@ -467,45 +469,48 @@ class PartsContainer extends Component {
     }
   }
 
-  emailTable(event) {
+  emailTable() {
     const that = this;
+
     let tempData = [];
     let emailData = [];
 
-    that.setState({
-      loading_email: true,
-    });
+    // that.setState({
+    //   loading_email: true,
+    // });
 
-    if (this.state.lvl2_status) {
-      tempData = JSON.parse(JSON.stringify(this.state.parts));
-      for (let i = 0; i < tempData.length; i++) {
-        let temp_obj = {};
-        temp_obj["Specific AV"] = tempData[i].specific_av;
-        temp_obj["Generic AV"] = tempData[i].generic_av;
-        temp_obj["Description"] = tempData[i].description;
-        emailData.push(temp_obj);
-      }
-    } else {
-      tempData = JSON.parse(JSON.stringify(this.state.lvl2_parts));
-      for (let i = 0; i < tempData.length; i++) {
-        let temp_obj = {};
-        temp_obj["Specific AV"] = tempData[i].specific_av;
-        temp_obj["BOM Components"] = tempData[i].level_2_av;
-        temp_obj["Generic AV"] = tempData[i].generic_av;
-        temp_obj["Description"] = tempData[i].description;
-        emailData.push(temp_obj);
-      }
+    // if (this.state.lvl2_status) {
+    //   tempData = JSON.parse(JSON.stringify(this.state.parts));
+    //   for (let i = 0; i < tempData.length; i++) {
+    //     let temp_obj = {};
+    //     temp_obj["Specific AV"] = tempData[i].specific_av;
+    //     temp_obj["Generic AV"] = tempData[i].generic_av;
+    //     temp_obj["Description"] = tempData[i].description;
+    //     emailData.push(temp_obj);
+    //   }
+    // } else {
+    tempData = JSON.parse(JSON.stringify(this.state.lvl2_parts));
+    for (let i = 0; i < tempData.length; i++) {
+      let temp_obj = {};
+      temp_obj["Specific AV"] = tempData[i].specific_av;
+      temp_obj["BOM Components"] = tempData[i].level_2_av;
+      temp_obj["Generic AV"] = tempData[i].generic_av;
+      temp_obj["Description"] = tempData[i].description;
+      emailData.push(temp_obj);
     }
+    // }
 
     console.log(tempData, emailData);
 
+    const current_date = new Date();
+
     let data = {
       user: that.state.email,
-      to: "",
-      cc: "",
-      body: "",
-      subject: "Retrieved Table Data",
+      subject: `Parts Borrowed by ${titleCase(
+        that.state.name
+      )} on ${current_date.toDateString()}`,
       data: emailData,
+      attachment: "Borrowed Data",
     };
 
     let request = new Request(
@@ -523,19 +528,19 @@ class PartsContainer extends Component {
         response.json().then(function (data) {
           console.log(data);
           if (data.message.toLowerCase() === "email sent") {
-            alertMessage("Email sent!");
+            console.log("Email sent!");
           } else {
-            alertMessage("unable to send email!");
+            console.log("unable to send email!");
           }
         });
       })
       .catch(function (err) {
         alertMessage("Server Error!");
         window.location.reload(true);
-      })
-      .finally(() => {
-        that.setState({ loading_email: false });
       });
+    // .finally(() => {
+    //   that.setState({ loading_email: false });
+    // });
   }
 
   allData() {
@@ -668,7 +673,7 @@ class PartsContainer extends Component {
       av_components_status,
       loading_get_parts,
       loading_update_parts,
-      loading_email,
+      // loading_email,
     } = this.state;
 
     return (
@@ -774,7 +779,7 @@ class PartsContainer extends Component {
                 >
                   View BOM Components
                 </button>
-                <button
+                {/* <button
                   onClick={this.exportCsv.bind(this)}
                   className="w3-button w3-round w3-light-grey react_button"
                 >
@@ -785,7 +790,7 @@ class PartsContainer extends Component {
                   text="Email Table"
                   color="light-grey"
                   loading={loading_email}
-                />
+                /> */}
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
@@ -805,7 +810,7 @@ class PartsContainer extends Component {
                 >
                   Hide BOM Components
                 </button>
-                <button
+                {/* <button
                   onClick={this.exportCsv.bind(this)}
                   className="w3-button w3-round w3-light-grey react_button"
                 >
@@ -816,7 +821,7 @@ class PartsContainer extends Component {
                   text="Email Table"
                   color="light-grey"
                   loading={loading_email}
-                />
+                /> */}
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
