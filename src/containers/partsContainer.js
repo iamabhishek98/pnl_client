@@ -511,7 +511,7 @@ class PartsContainer extends Component {
         that.state.name
       )} on ${current_date.toDateString()}`,
       data: emailData,
-      attachment: "Borrowed Data",
+      attachment: "Borrowed Parts",
     };
 
     let request = new Request(
