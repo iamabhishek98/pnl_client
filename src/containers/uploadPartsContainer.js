@@ -4,6 +4,7 @@ import { Link, Redirect } from "react-router-dom";
 import { CSVReader } from "react-papaparse";
 import { alertMessage } from "./helperFunctions";
 import auth from "../auth";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class UploadPartsContainer extends Component {
   constructor(props) {
@@ -17,6 +18,8 @@ class UploadPartsContainer extends Component {
       region: "no region",
       viewContents: false,
       redirectHome: false,
+      loading_email: false,
+      loading_upload: false,
     };
   }
 
@@ -210,7 +213,7 @@ class UploadPartsContainer extends Component {
   uploadData(event) {
     event.preventDefault();
 
-    let that = this;
+    const that = this;
     if (this.csvErrorHandler()) {
       let data = {
         jsonData: this.csvToJSON(),
@@ -229,6 +232,9 @@ class UploadPartsContainer extends Component {
         this.renderTableData(false);
 
         if (window.confirm("Are you sure you want to upload the data?")) {
+          that.setState({
+            loading_upload: true,
+          });
           let request = new Request(
             `${process.env.REACT_APP_API_URL}api/upload-data`,
             {
@@ -261,6 +267,9 @@ class UploadPartsContainer extends Component {
             .catch(function (err) {
               alertMessage("Server Error!");
               window.location.reload(true);
+            })
+            .finally(() => {
+              that.setState({ loading_upload: false });
             });
         }
       } else {
@@ -332,9 +341,13 @@ class UploadPartsContainer extends Component {
   }
 
   sendEmail(event) {
+    const that = this;
+
     event.preventDefault();
 
-    var that = this;
+    that.setState({
+      loading_email: true,
+    });
 
     let formattedCSVData = that.state.formattedCSVData;
 
@@ -401,6 +414,9 @@ class UploadPartsContainer extends Component {
       .catch(function (err) {
         alertMessage("Server Error!");
         window.location.reload(true);
+      })
+      .finally(() => {
+        that.setState({ loading_email: false });
       });
   }
 
@@ -451,8 +467,7 @@ class UploadPartsContainer extends Component {
       );
     }
 
-    let title = this.state.title;
-    let viewContents = this.state.viewContents;
+    let { title, viewContents, loading_email, loading_upload } = this.state;
     return (
       <div className="App">
         <br />
@@ -490,29 +505,30 @@ class UploadPartsContainer extends Component {
                 View Contents
               </button>
               <br />
-              <button
-                onClick={this.uploadData.bind(this)}
-                className="w3-button w3-round w3-blue react_button"
-              >
-                Upload
-              </button>
+              <ButtonLoaderContainer
+                onButtonSubmit={this.uploadData.bind(this)}
+                text="Upload"
+                color="blue"
+                loading={loading_upload}
+              />
             </div>
           )}
           {viewContents && (
             <div>
-              <button
-                onClick={this.uploadData.bind(this)}
-                className="w3-button w3-round w3-blue react_button"
-              >
-                Upload
-              </button>
+              <ButtonLoaderContainer
+                onButtonSubmit={this.uploadData.bind(this)}
+                text="Upload"
+                color="blue"
+                loading={loading_upload}
+              />
               <br />
-              <button
-                onClick={this.sendEmail.bind(this)}
-                className="w3-button w3-round w3-light-grey react_button"
-              >
-                Auto-Generate Email
-              </button>
+              <ButtonLoaderContainer
+                onButtonSubmit={this.sendEmail.bind(this)}
+                text="Auto-Generate Email"
+                color="light-grey"
+                loading={loading_email}
+              />
+
               <button
                 onClick={this.openMailApp.bind(this)}
                 className="w3-button w3-round w3-light-grey react_button"
@@ -577,7 +593,7 @@ class UploadPartsContainer extends Component {
       console.log(data);
     });
 
-    let that = this;
+    const that = this
 
     event.preventDefault();
     if (that.state.file !== "") {
