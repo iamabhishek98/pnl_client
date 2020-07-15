@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import auth from "../auth";
 import { alertMessage } from "./helperFunctions";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class ReturnPartsContainer extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class ReturnPartsContainer extends Component {
       name: auth.name,
       borrowed_av: [],
       redirectHome: false,
+      loading: false,
     };
   }
 
@@ -18,7 +20,7 @@ class ReturnPartsContainer extends Component {
   componentDidMount() {
     console.log("COMPONENT HAS MOUNTED");
 
-    let that = this;
+    const that = this;
 
     let data = {
       name: that.state.name,
@@ -69,7 +71,7 @@ class ReturnPartsContainer extends Component {
   }
 
   returnPart(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
     let data = {
@@ -81,6 +83,9 @@ class ReturnPartsContainer extends Component {
     console.log(data);
 
     if (data.specific_av !== "no specific av") {
+      that.setState({
+        loading: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/return-part`,
         {
@@ -109,6 +114,9 @@ class ReturnPartsContainer extends Component {
         .catch(function (err) {
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading: false });
         });
     } else {
       alertMessage("Please select one of the borrowed avs to return!");
@@ -126,8 +134,7 @@ class ReturnPartsContainer extends Component {
       );
     }
 
-    let title = this.state.title;
-    let borrowed_av = this.state.borrowed_av;
+    let { title, borrowed_av, loading } = this.state;
     return (
       <div className="App">
         <br />
@@ -146,12 +153,18 @@ class ReturnPartsContainer extends Component {
               ))}
             </select>
             <br />
-            <button
+            {/* <button
               onClick={this.returnPart.bind(this)}
               className="w3-button w3-round w3-blue react_button"
             >
               Return
-            </button>
+            </button> */}
+            <ButtonLoaderContainer
+              onButtonSubmit={this.returnPart.bind(this)}
+              text="Return"
+              color="blue"
+              loading={loading}
+            />
           </form>
         )}
         <Link to="/home">
