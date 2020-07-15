@@ -76,6 +76,7 @@ class LoginContainer extends Component {
     return (
       <div className="App">
         <br />
+        <img className="logo" src="hp_logo.png" alt="HP Logo"></img>
         <h1>
           <b>{title}</b>
         </h1>

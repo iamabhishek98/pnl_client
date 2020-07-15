@@ -5,6 +5,10 @@
   /* background-image: url(/images/bg.png); */
 }
 
+.logo {
+  width: 50px;
+}
+
 .getParts_input {
   width: 141px;
   /* width: 92px; */
