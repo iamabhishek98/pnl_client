@@ -672,7 +672,7 @@ class PartsContainer extends Component {
 
   renderTableDistinctData(parts) {
     return parts.map((part, index) => {
-      const { specific_av, generic_av, description } = part; //destructuring
+      const { specific_av, generic_av, description } = part;
       return (
         <tr key={index}>
           <td>{index + 1}</td>
@@ -686,7 +686,7 @@ class PartsContainer extends Component {
 
   renderTableLvl2Data(parts) {
     return parts.map((part, index) => {
-      const { specific_av, level_2_av, generic_av, description } = part; //destructuring
+      const { specific_av, level_2_av, generic_av, description } = part;
       return (
         <tr key={index}>
           <td>{index + 1}</td>
@@ -701,7 +701,7 @@ class PartsContainer extends Component {
 
   renderTableAllUnusedData(parts) {
     return parts.map((part, index) => {
-      const { generic_av, region, quantity } = part; //destructuring
+      const { generic_av, region, quantity } = part;
       return (
         <tr key={index}>
           <td>{index + 1}</td>
@@ -715,12 +715,11 @@ class PartsContainer extends Component {
 
   renderTableAllUsedData(parts) {
     return parts.map((part, index) => {
-      const { date, generic_av, specific_av, requester } = part; //destructuring
-      const formatted_date = Date(date);
+      const { date, generic_av, specific_av, requester } = part;
       return (
         <tr key={index}>
           <td>{index + 1}</td>
-          <td>{formatted_date.substring(0, 15)}</td>
+          <td>{date.substring(0, 10)}</td>
           <td>{generic_av}</td>
           <td>{specific_av}</td>
           <td>{titleCase(requester)}</td>
@@ -1023,7 +1022,7 @@ class PartsContainer extends Component {
                   <table className="partsTable">
                     <tr>
                       <th>ID</th>
-                      <th>Date</th>
+                      <th>Date of Request</th>
                       <th>Generic AV</th>
                       <th>Specific AV</th>
                       <th>User Name</th>
