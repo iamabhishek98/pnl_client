@@ -2,17 +2,19 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import auth from "../auth";
 import { alertMessage } from "./helperFunctions";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class LoginContainer extends Component {
   constructor(props) {
     super(props);
     this.state = {
       title: "Parts Number Library",
+      loading: false,
     };
   }
 
   checkUser(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
 
@@ -24,6 +26,9 @@ class LoginContainer extends Component {
     console.log(data);
 
     if (data.email !== "" && data.password !== "") {
+      that.setState({
+        loading: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/check-user`,
         {
@@ -56,6 +61,9 @@ class LoginContainer extends Component {
           console.log(err);
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading: false });
         });
     } else {
       alertMessage("Please fill up all the required fields!");
@@ -64,6 +72,7 @@ class LoginContainer extends Component {
 
   render() {
     let title = this.state.title;
+    let loading_login = this.state.loading;
     return (
       <div className="App">
         <br />
@@ -85,12 +94,12 @@ class LoginContainer extends Component {
             placeholder="Password"
           />
           <br />
-          <button
-            onClick={this.checkUser.bind(this)}
-            className="w3-button w3-round w3-blue react_button"
-          >
-            Login
-          </button>
+          <ButtonLoaderContainer
+            onButtonSubmit={this.checkUser.bind(this)}
+            text="Login"
+            color="blue"
+            loading={loading_login}
+          />
         </form>
         <Link to="/register">Don't have an account? Sign up!</Link>
       </div>
