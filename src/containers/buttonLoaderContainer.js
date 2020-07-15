@@ -1,7 +1,7 @@
 import React from "react";
 
 const ButtonLoaderContainer = ({ onButtonSubmit, text, color, loading }) => {
-  const button_css = "w3-button w3-round react_button" + " w3-" + color;
+  const button_css = "w3-button w3-round react_button w3-" + color;
 
   return (
     <span>

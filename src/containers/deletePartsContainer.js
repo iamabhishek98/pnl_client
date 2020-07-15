@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 import { alertMessage } from "./helperFunctions";
 import auth from "../auth";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class DeletePartsContainer extends Component {
   constructor(props) {
@@ -12,6 +13,7 @@ class DeletePartsContainer extends Component {
       owned_av: [],
       requested_part: undefined,
       redirectHome: false,
+      loading: false,
     };
     // this.requested_part = undefined;
   }
@@ -20,7 +22,7 @@ class DeletePartsContainer extends Component {
   componentDidMount() {
     console.log("COMPONENT HAS MOUNTED");
 
-    let that = this;
+    const that = this;
 
     let data = {
       name: that.state.name,
@@ -71,7 +73,7 @@ class DeletePartsContainer extends Component {
   }
   /*
   getPart(event) {
-    let that = this;
+    const that = this
 
     that.setState({ requested_part: undefined });
 
@@ -119,7 +121,7 @@ class DeletePartsContainer extends Component {
   }
 */
   deletePart(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
     let data = {
@@ -128,6 +130,9 @@ class DeletePartsContainer extends Component {
     };
 
     if (data.specific_av !== "no specific av") {
+      that.setState({
+        loading: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/delete-part`,
         {
@@ -156,6 +161,9 @@ class DeletePartsContainer extends Component {
         .catch(function (err) {
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading: false });
         });
     } else {
       alertMessage("Please select one of the specific avs to delete!");
@@ -180,9 +188,8 @@ class DeletePartsContainer extends Component {
         />
       );
     }
-    let title = this.state.title;
-    let owned_av = this.state.owned_av;
-    // let requested_part = this.state.requested_part;
+    let { title, owned_av, loading } = this.state;
+
     return (
       <div className="App">
         <br />
@@ -201,50 +208,15 @@ class DeletePartsContainer extends Component {
               ))}
             </select>
             <br />
-            <button
-              onClick={this.deletePart.bind(this)}
-              className="w3-button w3-round w3-red react_button"
-            >
-              Delete
-            </button>
+            <ButtonLoaderContainer
+              onButtonSubmit={this.deletePart.bind(this)}
+              text="Delete"
+              color="red"
+              loading={loading}
+            />
           </form>
         )}
 
-        {/* <form id="getPartForm">
-          <input className="input_text" type="text" ref="av" placeholder="AV" />
-          <br />
-          <button
-            onClick={this.getPart.bind(this)}
-            className="w3-button w3-round w3-blue react_button"
-          >
-            Get Part
-          </button>
-        </form>
-        {parts !== undefined && requested_part !== undefined && (
-          <div>
-            <ul className="unordered_list">
-              <h2>Retrieved Part</h2>
-              {parts.map((parts) => (
-                <li key={parts.av}>
-                  <b>AV:</b> {parts.av}, <b>Service AV:</b> {parts.service_av},{" "}
-                  <b>Description:</b> {parts.description}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={this.deletePart.bind(this)}
-              className="w3-button w3-round w3-red react_button"
-            >
-              Delete
-            </button>
-            <button
-              onClick={this.cancelPart.bind(this)}
-              className="w3-button w3-round w3-light-grey react_button"
-            >
-              Cancel
-            </button>
-          </div>
-        )} */}
         <Link to="/home">
           <button className="w3-button w3-round w3-light-grey react_button">
             Home Page
