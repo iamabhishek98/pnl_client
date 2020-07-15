@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Link, Redirect } from "react-router-dom";
 // import axios from "axios";
 import { CSVReader } from "react-papaparse";
-import { alertMessage } from "./helperFunctions";
+import { alertMessage, titleCase } from "./helperFunctions";
 import auth from "../auth";
 import ButtonLoaderContainer from "./buttonLoaderContainer";
 
@@ -251,13 +251,7 @@ class UploadPartsContainer extends Component {
                 console.log(data);
                 if (data.status) {
                   alertMessage("data inserted successfully!");
-                  if (
-                    window.confirm(
-                      "Do you want to download the icost submission template?"
-                    )
-                  ) {
-                    that.exportCsv();
-                  }
+                  that.sendIcost();
                   that.setState({ redirectHome: true });
                 } else {
                   alertMessage("unable to upload data!");
@@ -301,6 +295,7 @@ class UploadPartsContainer extends Component {
     }
   }
 
+  // not being used currently
   exportCsv() {
     let csv = this.state.formattedCSVData;
 
@@ -340,7 +335,61 @@ class UploadPartsContainer extends Component {
     a.click();
   }
 
-  sendEmail(event) {
+  sendIcost() {
+    const that = this;
+
+    let formattedCSVData = that.state.formattedCSVData;
+
+    let data = [];
+    for (let i = 0; i < formattedCSVData.length; i++) {
+      let temp = {};
+      temp["Part Number"] = formattedCSVData[i].specific_av;
+      temp.Description = formattedCSVData[i].description;
+      temp.Cost = "$0.02";
+      temp["Make/Buy Flag"] = "BUY";
+      temp["Plant Code"] = "0905";
+      data.push(temp);
+    }
+
+    let current_date = new Date();
+
+    const emailData = {
+      user: that.state.email,
+      subject: `Parts Uploaded Sucessfully on ${current_date.toDateString()} by ${titleCase(
+        that.state.name
+      )}`,
+      data: data,
+      attachment: "iCost Template",
+    };
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/email-upload`,
+
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(emailData),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
+      .then(function (response) {
+        response.json().then(function (data) {
+          if (data.message.toLowerCase() === "email sent") {
+            console.log("Email Sent!");
+          } else {
+            console.log("unable to send email!");
+          }
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      });
+  }
+
+  sendTemplate(event) {
     const that = this;
 
     event.preventDefault();
@@ -542,7 +591,7 @@ class UploadPartsContainer extends Component {
               />
               <br />
               <ButtonLoaderContainer
-                onButtonSubmit={this.sendEmail.bind(this)}
+                onButtonSubmit={this.sendTemplate.bind(this)}
                 text="Auto-Generate Email"
                 color="light-grey"
                 loading={loading_email}
