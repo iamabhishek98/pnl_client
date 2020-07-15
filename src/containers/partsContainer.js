@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 import auth from "../auth";
 import { alertMessage, titleCase } from "./helperFunctions";
+import ButtonLoaderContainer from "./buttonLoaderContainer";
 
 class PartsContainer extends Component {
   constructor(props) {
@@ -21,6 +22,10 @@ class PartsContainer extends Component {
       parts: undefined,
       lvl2_parts: undefined,
       lvl2_status: true,
+      loading_get_parts: false,
+      loading_update_parts: false,
+      loading_email: false,
+      loading_buffer: false,
     };
   }
 
@@ -28,7 +33,7 @@ class PartsContainer extends Component {
   componentDidMount() {
     console.log("COMPONENT HAS MOUNTED");
 
-    let that = this;
+    const that = this;
 
     fetch(`${process.env.REACT_APP_API_URL}api/get-generic_av`)
       .then(function (response) {
@@ -98,7 +103,7 @@ class PartsContainer extends Component {
   }
 
   getRegions(event) {
-    let that = this;
+    const that = this;
     event.preventDefault();
 
     // av only for testing purposes (to be changed to AY104AV )
@@ -138,7 +143,7 @@ class PartsContainer extends Component {
   }
 
   getComponents(event) {
-    let that = this;
+    const that = this;
     event.preventDefault();
 
     // av only for testing purposes (to be changed to AY104AV )
@@ -198,7 +203,7 @@ class PartsContainer extends Component {
   }
 
   getParts(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
 
@@ -210,7 +215,10 @@ class PartsContainer extends Component {
     let data = {
       generic_av: this.refs.generic_av.value,
       quantity: this.refs.quantity.value,
-      region: this.refs.av_regions.value,
+      region:
+        this.refs.av_regions === undefined
+          ? "no region"
+          : this.refs.av_regions.value,
       components: av_components,
     };
 
@@ -220,6 +228,9 @@ class PartsContainer extends Component {
       data.region !== "no region" &&
       (data.components === "" || data.components !== "no component")
     ) {
+      that.setState({
+        loading_get_parts: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/get-parts`,
 
@@ -325,6 +336,9 @@ class PartsContainer extends Component {
         .catch(function (err) {
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading_get_parts: false });
         });
     } else {
       alertMessage("Please fill up the required fields!");
@@ -332,7 +346,7 @@ class PartsContainer extends Component {
   }
 
   updatePart(event) {
-    let that = this;
+    const that = this;
 
     event.preventDefault();
     let data = {
@@ -349,6 +363,9 @@ class PartsContainer extends Component {
       alertMessage("no available parts left to borrow!");
       that.resetForms();
     } else if (data.customer !== "") {
+      that.setState({
+        loading_update_parts: true,
+      });
       let request = new Request(
         `${process.env.REACT_APP_API_URL}api/update-part`,
         {
@@ -380,6 +397,9 @@ class PartsContainer extends Component {
         .catch(function (err) {
           alertMessage("Server Error!");
           window.location.reload(true);
+        })
+        .finally(() => {
+          that.setState({ loading_update_parts: false });
         });
     } else {
       alertMessage("Please enter the Customer information!");
@@ -448,9 +468,13 @@ class PartsContainer extends Component {
   }
 
   emailTable(event) {
-    let that = this;
+    const that = this;
     let tempData = [];
     let emailData = [];
+
+    that.setState({
+      loading_email: true,
+    });
 
     if (this.state.lvl2_status) {
       tempData = JSON.parse(JSON.stringify(this.state.parts));
@@ -508,13 +532,18 @@ class PartsContainer extends Component {
       .catch(function (err) {
         alertMessage("Server Error!");
         window.location.reload(true);
+      })
+      .finally(() => {
+        that.setState({ loading_email: false });
       });
   }
 
   allData() {
-    let that = this;
+    const that = this;
 
-    that.setState({ all_av_status: !that.state.all_av_status });
+    that.setState({
+      all_av_status: !that.state.all_av_status,
+    });
 
     fetch(`${process.env.REACT_APP_API_URL}api/get-all_generic_av`)
       .then(function (response) {
@@ -620,7 +649,7 @@ class PartsContainer extends Component {
   // show loading icon when data is being retrieved
   render() {
     let name = titleCase(this.state.name);
-    let available_av = this.state.available_av;
+
     let parts = undefined;
     if (this.state.lvl2_status) {
       parts = this.state.parts;
@@ -628,14 +657,19 @@ class PartsContainer extends Component {
       parts = this.state.lvl2_parts;
     }
 
-    let av_regions = this.state.av_regions;
-    let av_regions_status = this.state.av_regions_status;
-
-    let av_components = this.state.av_components;
-    let av_components_status = this.state.av_components_status;
-
     let all_parts = this.state.all_av_filtered;
     let all_parts_status = this.state.all_av_status;
+
+    let {
+      available_av,
+      av_regions,
+      av_regions_status,
+      av_components,
+      av_components_status,
+      loading_get_parts,
+      loading_update_parts,
+      loading_email,
+    } = this.state;
 
     return (
       <div className="App">
@@ -710,12 +744,12 @@ class PartsContainer extends Component {
                 </select>
               )}
               {av_components_status && <br />}
-              <button
-                onClick={this.getParts.bind(this)}
-                className="w3-button w3-round w3-blue react_button"
-              >
-                Get Parts
-              </button>
+              <ButtonLoaderContainer
+                onButtonSubmit={this.getParts.bind(this)}
+                text="Get Parts"
+                color="blue"
+                loading={loading_get_parts}
+              />
             </div>
           )}
         </form>
@@ -746,12 +780,12 @@ class PartsContainer extends Component {
                 >
                   Download Table
                 </button>
-                <button
-                  onClick={this.emailTable.bind(this)}
-                  className="w3-button w3-round w3-light-grey react_button"
-                >
-                  Email Table
-                </button>
+                <ButtonLoaderContainer
+                  onButtonSubmit={this.emailTable.bind(this)}
+                  text="Email Table"
+                  color="light-grey"
+                  loading={loading_email}
+                />
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
@@ -777,12 +811,12 @@ class PartsContainer extends Component {
                 >
                   Download Table
                 </button>
-                <button
-                  onClick={this.emailTable.bind(this)}
-                  className="w3-button w3-round w3-light-grey react_button"
-                >
-                  Email Table
-                </button>
+                <ButtonLoaderContainer
+                  onButtonSubmit={this.emailTable.bind(this)}
+                  text="Email Table"
+                  color="light-grey"
+                  loading={loading_email}
+                />
                 <table className="partsTable">
                   <tr>
                     <th>ID</th>
@@ -806,12 +840,12 @@ class PartsContainer extends Component {
                 placeholder="Customer"
               />
               <br />
-              <button
-                onClick={this.updatePart.bind(this)}
-                className="w3-button w3-round w3-blue react_button"
-              >
-                Borrow Parts
-              </button>
+              <ButtonLoaderContainer
+                onButtonSubmit={this.updatePart.bind(this)}
+                text="Borrow Parts"
+                color="blue"
+                loading={loading_update_parts}
+              />
               <button
                 onClick={this.cancelBorrow.bind(this)}
                 className="w3-button w3-round w3-light-grey react_button"
