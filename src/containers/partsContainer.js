@@ -861,7 +861,7 @@ class PartsContainer extends Component {
             Return Parts
           </button>
         </Link>
-        <Link to="/add">
+        <Link to="/upload">
           <button className="w3-button w3-round w3-light-grey react_button">
             Upload Parts
           </button>

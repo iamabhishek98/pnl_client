@@ -451,9 +451,28 @@ class UploadPartsContainer extends Component {
   }
 
   openMailApp(event) {
+    const that = this;
+
     event.preventDefault();
+
+    let to = "";
+    let cc = "";
+    let subject = "";
+    let body = "";
+    if (that.state.region === "apj") {
+      to = "PDLMARKETINGOPS@hp.com;";
+      cc = "paliwal@hp.com, Annie.Leong@hp.com";
+      subject = "Setup Patsy, PLC, ILP (buffer CS AVs)";
+      body = `Hi Team,%0d%0a%0d%0aPlease help to setup PATSY, PLC & ILP for APJ countries and inform once done.%0d%0a`;
+    } else {
+      to = "pdm_coe_pricing@hp.com, regionalpricing1@hp.com;";
+      cc = "gbs-pccs-hw-engr-team1@hp.com;";
+      subject = "CS AV Phweb and GPys Description update – Priority";
+      body = `Hi Team,%0d%0a%0d%0aRequest to update Phweb and GPSy for below AV’s:%0d%0a`;
+    }
+
     if (window.confirm("Do you want to open in mail app?"))
-      window.open(`mailto:${this.state.email}?subject=Email%20Template`);
+      window.open(`mailto:${to}?cc=${cc}&subject=${subject}&body=${body}`);
   }
 
   render() {
