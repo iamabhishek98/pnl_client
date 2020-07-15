@@ -15,7 +15,6 @@ class DeletePartsContainer extends Component {
       redirectHome: false,
       loading: false,
     };
-    // this.requested_part = undefined;
   }
 
   // MAKE AJAX CALLS HERE
@@ -71,55 +70,7 @@ class DeletePartsContainer extends Component {
       owned_av: [],
     });
   }
-  /*
-  getPart(event) {
-    const that = this
 
-    that.setState({ requested_part: undefined });
-
-    event.preventDefault();
-    let data = {
-      av: this.refs.av.value,
-    };
-
-    console.log(data);
-
-    if (data.av !== "") {
-      let request = new Request(`${process.env.REACT_APP_API_URL}api/get-part`, {
-        method: "POST",
-        headers: new Headers({ "Content-Type": "application/json" }),
-        body: JSON.stringify(data),
-      });
-
-      // xmlhttprequest()
-      fetch(request, { mode: "cors" })
-        .then(function (response) {
-          response.json().then(function (data) {
-            if (data.length !== 0) {
-              that.setState({
-                owned_av: data,
-                requested_part: data,
-              });
-              console.log("requested_part", that.state.requested_part);
-            } else {
-              // that.setState({
-              //   owned_av: data,
-              //   requested_part: undefined,
-              // });
-              alertMessage("part not found!");
-              that.resetForm();
-            }
-          });
-        })
-        .catch(function (err) {
-          alertMessage("Server Error!");
-          window.location.reload(true);
-        });
-    } else {
-      alertMessage("No data entered!");
-    }
-  }
-*/
   deletePart(event) {
     const that = this;
 
@@ -169,15 +120,7 @@ class DeletePartsContainer extends Component {
       alertMessage("Please select one of the specific avs to delete!");
     }
   }
-  /*
-  cancelPart(event) {
-    this.setState({
-      requested_part: undefined,
-    });
 
-    console.log(this.state.requested_part);
-  }
-  */
   render() {
     if (this.state.redirectHome) {
       return (
