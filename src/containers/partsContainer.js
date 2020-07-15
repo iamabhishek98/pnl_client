@@ -10,8 +10,9 @@ class PartsContainer extends Component {
     this.state = {
       name: auth.name,
       email: auth.email,
-      all_av: [],
-      all_av_filtered: [],
+      all_unused_av: [],
+      all_unused_av_filtered: [],
+      all_used_av: [],
       all_av_status: false,
       available_av: [],
       av_regions: [],
@@ -22,10 +23,10 @@ class PartsContainer extends Component {
       parts: undefined,
       lvl2_parts: undefined,
       lvl2_status: true,
+      buffer_used_status: false,
       loading_get_parts: false,
       loading_update_parts: false,
-      // loading_email: false,
-      loading_buffer: false,
+      loading_unused_buffer: false,
     };
   }
 
@@ -70,7 +71,7 @@ class PartsContainer extends Component {
       available_av: [],
       av_regions: [],
       av_regions_status: false,
-      av_components_status: [],
+      av_components: [],
       av_components_status: false,
       requested_parts: [],
       parts: undefined,
@@ -88,7 +89,7 @@ class PartsContainer extends Component {
     this.setState({
       av_regions: [],
       av_regions_status: false,
-      av_components_status: [],
+      av_components: [],
       av_components_status: false,
       requested_parts: [],
       parts: undefined,
@@ -192,7 +193,7 @@ class PartsContainer extends Component {
     this.setState({
       av_regions: [],
       av_regions_status: false,
-      av_components_status: [],
+      av_components: [],
       av_components_status: false,
       requested_parts: [],
       parts: undefined,
@@ -543,21 +544,36 @@ class PartsContainer extends Component {
     // });
   }
 
-  allData() {
+  allUnusedParts() {
     const that = this;
 
     that.setState({
       all_av_status: !that.state.all_av_status,
+      buffer_used_status: false,
     });
 
-    fetch(`${process.env.REACT_APP_API_URL}api/get-all_generic_av`)
+    const data = {
+      used: 0,
+    };
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/get-all_generic_av`,
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
       .then(function (response) {
         response.json().then(function (data) {
           console.log(data);
           if (data.message.toLowerCase() !== "no generic avs found") {
             that.setState({
-              all_av: data.data,
-              all_av_filtered: data.data,
+              all_unused_av: data.data,
+              all_unused_av_filtered: data.data,
             });
             console.log(data.data);
           } else {
@@ -571,43 +587,89 @@ class PartsContainer extends Component {
       });
   }
 
+  allUsedParts(region, quantity) {
+    const that = this;
+
+    that.setState({ loading_unused_buffer: true });
+
+    const data = {
+      used: 1,
+      region: region,
+      quantity: quantity,
+    };
+    console.log(data);
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/get-all_generic_av`,
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
+
+    // xmlhttprequest()
+    fetch(request, { mode: "cors" })
+      .then(function (response) {
+        response.json().then(function (data) {
+          console.log(data);
+          if (data.message.toLowerCase() !== "no generic avs found") {
+            that.setState({
+              all_used_av: data.data,
+            });
+            if (quantity > data.data.length) {
+              alertMessage(
+                `only able to retrieve ${data.data.length} used parts!`
+              );
+            }
+            console.log(data.data);
+          } else {
+            alertMessage("no generic avs found!");
+            that.setState({
+              all_used_av: [],
+            });
+          }
+        });
+      })
+      .catch(function (err) {
+        alertMessage("Server Error!");
+        window.location.reload(true);
+      })
+      .finally(() => that.setState({ loading_unused_buffer: false }));
+  }
+
   filterBuffer(event) {
     event.preventDefault();
-    let filter_region = this.refs.buffer_region.value;
-    // console.log(this.state.all_av);
-    if (filter_region !== "no region") {
-      let data = [];
-      for (let i = 0; i < this.state.all_av.length; i++) {
-        if (this.state.all_av[i].region === filter_region) {
-          data.push(this.state.all_av[i]);
+
+    const filter_region = this.refs.buffer_region.value;
+    const used_status = this.refs.used_status.value === "0" ? false : true;
+
+    this.setState({
+      buffer_used_status: used_status,
+      all_used_av: [],
+    });
+
+    if (!used_status) {
+      console.log("hellow world");
+      if (filter_region !== "no region") {
+        let data = [];
+        for (let i = 0; i < this.state.all_unused_av.length; i++) {
+          if (this.state.all_unused_av[i].region === filter_region) {
+            data.push(this.state.all_unused_av[i]);
+          }
         }
+        this.setState({ all_unused_av_filtered: data });
+      } else {
+        this.setState({ all_unused_av_filtered: this.state.all_unused_av });
       }
-      this.setState({ all_av_filtered: data });
     } else {
-      this.setState({ all_av_filtered: this.state.all_av });
+      const quantity = this.refs.buffer_quantity;
+      if (quantity && quantity.value && quantity.value > 0) {
+        this.allUsedParts(filter_region, quantity.value);
+      }
     }
   }
 
-  /*renderTableHeader() {
-    let header = Object.keys(this.state.students[0])
-    return header.map((key, index) => {
-       return <th key={index}>{key.toUpperCase()}</th>
-    })
- }
-
- render() {
-    return (
-       <div>
-          <h1 id='title'>React Dynamic Table</h1>
-          <table id='students'>
-             <tbody>
-                <tr>{this.renderTableHeader()}</tr>
-                {this.renderTableData()}
-             </tbody>
-          </table>
-       </div>
-    )
- }*/
   renderTableDistinctData(parts) {
     return parts.map((part, index) => {
       const { specific_av, generic_av, description } = part; //destructuring
@@ -637,7 +699,7 @@ class PartsContainer extends Component {
     });
   }
 
-  renderTableAllData(parts) {
+  renderTableAllUnusedData(parts) {
     return parts.map((part, index) => {
       const { generic_av, region, quantity } = part; //destructuring
       return (
@@ -646,6 +708,22 @@ class PartsContainer extends Component {
           <td>{generic_av}</td>
           <td>{region.toUpperCase()}</td>
           <td>{quantity}</td>
+        </tr>
+      );
+    });
+  }
+
+  renderTableAllUsedData(parts) {
+    return parts.map((part, index) => {
+      const { date, generic_av, specific_av, requester } = part; //destructuring
+      const formatted_date = Date(date);
+      return (
+        <tr key={index}>
+          <td>{index + 1}</td>
+          <td>{formatted_date.substring(0, 15)}</td>
+          <td>{generic_av}</td>
+          <td>{specific_av}</td>
+          <td>{titleCase(requester)}</td>
         </tr>
       );
     });
@@ -662,7 +740,8 @@ class PartsContainer extends Component {
       parts = this.state.lvl2_parts;
     }
 
-    let all_parts = this.state.all_av_filtered;
+    let all_unused_parts = this.state.all_unused_av_filtered;
+    let all_used_parts = this.state.all_used_av;
     let all_parts_status = this.state.all_av_status;
 
     let {
@@ -671,9 +750,10 @@ class PartsContainer extends Component {
       av_regions_status,
       av_components,
       av_components_status,
+      buffer_used_status,
       loading_get_parts,
       loading_update_parts,
-      // loading_email,
+      loading_unused_buffer,
     } = this.state;
 
     return (
@@ -880,7 +960,7 @@ class PartsContainer extends Component {
         <br />
         {!all_parts_status && (
           <button
-            onClick={this.allData.bind(this)}
+            onClick={this.allUnusedParts.bind(this)}
             className="w3-button w3-round w3-light-grey react_button"
           >
             View Buffer
@@ -889,7 +969,7 @@ class PartsContainer extends Component {
         {all_parts_status && (
           <div>
             <button
-              onClick={this.allData.bind(this)}
+              onClick={this.allUnusedParts.bind(this)}
               className="w3-button w3-round w3-light-grey react_button"
             >
               Hide Buffer
@@ -907,15 +987,63 @@ class PartsContainer extends Component {
               <option value="emea">EMEA</option>
             </select>
             <br />
-            <table className="partsTable">
-              <tr>
-                <th>ID</th>
-                <th>Generic AV</th>
-                <th>Region</th>
-                <th>Quantity</th>
-              </tr>
-              {this.renderTableAllData(all_parts)}
-            </table>
+            <select
+              onChange={this.filterBuffer.bind(this)}
+              className="input_text getParts_input"
+              ref="used_status"
+            >
+              <option value="0">Unused</option>
+              <hr />
+              <option value="1">Used</option>
+            </select>
+            <br />
+            {buffer_used_status && (
+              <div>
+                <input
+                  className="input_text getParts_input"
+                  type="number"
+                  ref="buffer_quantity"
+                  placeholder="Quantity"
+                  min="1"
+                />
+                <br />
+                <ButtonLoaderContainer
+                  onButtonSubmit={this.filterBuffer.bind(this)}
+                  text="Get Latest Used Parts"
+                  color="light-grey"
+                  loading={loading_unused_buffer}
+                />
+                {/* <button
+                  onClick={this.filterBuffer.bind(this)}
+                  className="w3-button w3-round w3-light-grey react_button"
+                >
+                  Get Latest Used Parts
+                </button> */}
+                {all_used_parts.length !== 0 && (
+                  <table className="partsTable">
+                    <tr>
+                      <th>ID</th>
+                      <th>Date</th>
+                      <th>Generic AV</th>
+                      <th>Specific AV</th>
+                      <th>User Name</th>
+                    </tr>
+                    {this.renderTableAllUsedData(all_used_parts)}
+                  </table>
+                )}
+              </div>
+            )}
+            {!buffer_used_status && all_unused_parts.length !== 0 && (
+              <table className="partsTable">
+                <tr>
+                  <th>ID</th>
+                  <th>Generic AV</th>
+                  <th>Region</th>
+                  <th>Quantity</th>
+                </tr>
+                {this.renderTableAllUnusedData(all_unused_parts)}
+              </table>
+            )}
           </div>
         )}
         <br />
