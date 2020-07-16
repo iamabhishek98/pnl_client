@@ -702,7 +702,7 @@ class PartsContainer extends Component {
     let data = {
       user: email,
       to: `${to};`,
-      subject: `Parts Replenishment by ${titleCase(
+      subject: `${part}_BOM Replenishment by ${titleCase(
         name
       )} on ${current_date.toDateString()}`,
       data: emailData,
