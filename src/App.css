@@ -5,6 +5,30 @@
   /* background-image: url(/images/bg.png); */
 }
 
+.login-form {
+  width: 450px;
+}
+
+.register-form {
+  width: 400px;
+}
+
+.login-form,
+.register-form {
+  border-radius: 6px;
+  margin: 0 auto;
+  padding-top: 30px;
+  padding-bottom: 30px;
+  padding-left: 30px;
+  padding-right: 30px;
+  box-shadow: 0px 0px 3px 3px #ccc;
+}
+
+.login-button,
+.register-button {
+  width: 160px;
+}
+
 .logo {
   width: 50px;
 }

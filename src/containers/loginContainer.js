@@ -77,31 +77,36 @@ class LoginContainer extends Component {
       <div className="App">
         <br />
         <img className="logo" src="hp_logo.png" alt="HP Logo"></img>
-        <h1>
-          <b>{title}</b>
-        </h1>
-        <form ref="loginForm">
-          <input
-            className="input_text"
-            type="text"
-            ref="email"
-            placeholder="Email"
-          />
-          <br />
-          <input
-            className="input_text"
-            type="password"
-            ref="password"
-            placeholder="Password"
-          />
-          <br />
-          <ButtonLoaderContainer
-            onButtonSubmit={this.checkUser.bind(this)}
-            text="Login"
-            color="blue"
-            loading={loading_login}
-          />
-        </form>
+        <br />
+        <br />
+        <div className="login-form">
+          <h1>
+            <b>{title}</b>
+          </h1>
+          <form ref="loginForm">
+            <input
+              className="input_text"
+              type="text"
+              ref="email"
+              placeholder="Email"
+            />
+            <br />
+            <input
+              className="input_text"
+              type="password"
+              ref="password"
+              placeholder="Password"
+            />
+            <br />
+            <ButtonLoaderContainer
+              onButtonSubmit={this.checkUser.bind(this)}
+              text="Login"
+              color="orange login-button"
+              loading={loading_login}
+            />
+          </form>
+        </div>
+        <br />
         <Link to="/register">Don't have an account? Sign up!</Link>
       </div>
     );

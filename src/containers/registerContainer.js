@@ -84,40 +84,46 @@ class RegisterContainer extends Component {
     return (
       <div className="App">
         <br />
-        <h1>
-          <b>{title}</b>
-        </h1>
-        <form ref="registrationForm">
-          <input
-            className="input_text"
-            type="text"
-            ref="name"
-            placeholder="Name"
-          />
-          <br />
-          <input
-            className="input_text"
-            type="text"
-            ref="email"
-            placeholder="Email"
-          />
-          <br />
-          <input
-            className="input_text"
-            type="password"
-            ref="password"
-            placeholder="Password"
-          />
-          <br />
-          <text style={{ color: "black" }}>*Do not use HP password</text>
-          <br />
-          <ButtonLoaderContainer
-            onButtonSubmit={this.registerUser.bind(this)}
-            text="Register"
-            color="blue"
-            loading={loading}
-          />
-        </form>
+        <img className="logo" src="hp_logo.png" alt="HP Logo"></img>
+        <br />
+        <br />
+        <div className="register-form">
+          <h1>
+            <b>{title}</b>
+          </h1>
+          <form ref="registrationForm">
+            <input
+              className="input_text"
+              type="text"
+              ref="name"
+              placeholder="Name"
+            />
+            <br />
+            <input
+              className="input_text"
+              type="text"
+              ref="email"
+              placeholder="Email"
+            />
+            <br />
+            <input
+              className="input_text"
+              type="password"
+              ref="password"
+              placeholder="Password"
+            />
+            <br />
+            <text style={{ color: "black" }}>*Do not use HP password</text>
+            <br />
+            <ButtonLoaderContainer
+              onButtonSubmit={this.registerUser.bind(this)}
+              text="Register"
+              color="orange register-button"
+              loading={loading}
+            />
+          </form>
+        </div>
+        <br />
         <Link to="/">Back to Login</Link>
       </div>
     );
