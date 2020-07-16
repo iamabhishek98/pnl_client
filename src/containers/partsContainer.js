@@ -26,6 +26,7 @@ class PartsContainer extends Component {
       buffer_used_status: false,
       loading_get_parts: false,
       loading_update_parts: false,
+      loading_replenish_buffer: false,
       loading_unused_buffer: false,
     };
   }
@@ -392,7 +393,7 @@ class PartsContainer extends Component {
               // that.resetForms();
               // that.componentDidMount();
             } else {
-              alertMessage("unable to borrow parts!");
+              alertMessage("unable to obtain parts!");
             }
           });
         })
@@ -670,6 +671,140 @@ class PartsContainer extends Component {
     }
   }
 
+  async emailReplenishment(name, email, to, part, quantity) {
+    const that = this;
+
+    let emailData = [
+      {
+        User: titleCase(name),
+        "User Email": titleCase(email),
+        "Types of Services Requested": `${part}_BOM`,
+        Quantity: quantity,
+        "Overwrite LC Dates": "N",
+        "PA Date": "",
+        "PI Date": "",
+        "SA Date": "",
+        "PE Date": "",
+        "EM Date": "",
+        "ES Date": "",
+      },
+    ];
+
+    const current_date = new Date();
+    const date = `${current_date.getFullYear()}${
+      current_date.getMonth() + 1
+    }${current_date.getDate()}`;
+
+    const fileName = `CS AV User Request Template_${titleCase(
+      name
+    )}_${part}_BOM_${date}_QTY${quantity}`;
+
+    let data = {
+      user: email,
+      to: `${to};`,
+      subject: `Parts Replenishment by ${titleCase(
+        name
+      )} on ${current_date.toDateString()}`,
+      data: emailData,
+      attachment: fileName,
+    };
+
+    let request = new Request(
+      `${process.env.REACT_APP_API_URL}api/email-upload`,
+      {
+        method: "POST",
+        headers: new Headers({ "Content-Type": "application/json" }),
+        body: JSON.stringify(data),
+      }
+    );
+
+    // xmlhttprequest()
+    try {
+      const response = await fetch(request, { mode: "cors" });
+      const data = await response.json();
+      console.log(data);
+      if (data.message.toLowerCase() === "email sent") {
+        console.log("Email sent!");
+        return 1;
+      } else {
+        console.log("unable to send email!");
+        return 0;
+      }
+    } catch (err) {
+      alertMessage("Server Error!");
+      window.location.reload(true);
+    }
+  }
+
+  async replenishBuffer(event) {
+    const that = this;
+
+    event.preventDefault();
+
+    that.setState({
+      loading_replenish_buffer: true,
+    });
+
+    const filter_region = this.refs.buffer_region.value;
+
+    if (filter_region !== "no region") {
+      let parts = that.state.all_unused_av_filtered;
+      let min_buffer_value = 0;
+      let to = "";
+      if (filter_region === "apj") {
+        min_buffer_value = 10;
+        to = "paliwal@hp.com";
+      } else if (filter_region === "ams") {
+        min_buffer_value = 50;
+        to = "krishna.kumar.m@hp.com";
+      } else if (filter_region === "emea") {
+        min_buffer_value = 50;
+        to = "rajesh.m1@hp.com";
+      }
+      let replenish_parts = [];
+      let replenish_string = "";
+      for (let i = 0; i < parts.length; i++) {
+        if (parts[i].quantity < min_buffer_value) {
+          replenish_parts.push(parts[i].generic_av);
+          if (replenish_string === "")
+            replenish_string += `${parts[i].generic_av}`;
+          else replenish_string += `, ${parts[i].generic_av}`;
+        }
+      }
+      console.log(replenish_parts.length);
+      if (replenish_parts.length !== 0) {
+        if (
+          window.confirm(
+            `${titleCase(
+              `are you sure you want to replenish the following ${replenish_parts.length} parts:\n`
+            )}${replenish_string}`
+          )
+        ) {
+          let count = 0;
+          for (let i = 0; i < replenish_parts.length; i++) {
+            count += await that.emailReplenishment(
+              that.state.name,
+              that.state.email,
+              to,
+              replenish_parts[i],
+              min_buffer_value
+            );
+          }
+          if (count === replenish_parts.length)
+            alertMessage("replenishment emails sent!");
+          else alertMessage("unable to send replenishment emails!");
+        }
+      } else {
+        alertMessage("none of the parts need to be replenished!");
+      }
+    } else {
+      alertMessage("Please select one of the regions!");
+    }
+    that.setState({
+      loading_replenish_buffer: false,
+    });
+  }
+
   renderTableDistinctData(parts) {
     return parts.map((part, index) => {
       const { specific_av, generic_av, description } = part;
@@ -752,6 +887,7 @@ class PartsContainer extends Component {
       buffer_used_status,
       loading_get_parts,
       loading_update_parts,
+      loading_replenish_buffer,
       loading_unused_buffer,
     } = this.state;
 
@@ -830,7 +966,7 @@ class PartsContainer extends Component {
               {av_components_status && <br />}
               <ButtonLoaderContainer
                 onButtonSubmit={this.getParts.bind(this)}
-                text="Get Parts"
+                text="Show Parts"
                 color="blue"
                 loading={loading_get_parts}
               />
@@ -926,7 +1062,7 @@ class PartsContainer extends Component {
               <br />
               <ButtonLoaderContainer
                 onButtonSubmit={this.updatePart.bind(this)}
-                text="Borrow Parts"
+                text="Obtain Parts"
                 color="blue"
                 loading={loading_update_parts}
               />
@@ -969,7 +1105,7 @@ class PartsContainer extends Component {
           <div>
             <button
               onClick={this.allUnusedParts.bind(this)}
-              className="w3-button w3-round w3-light-grey react_button"
+              className="w3-button w3-round w3-blue react_button"
             >
               Hide Buffer
             </button>
@@ -1032,16 +1168,32 @@ class PartsContainer extends Component {
                 )}
               </div>
             )}
-            {!buffer_used_status && all_unused_parts.length !== 0 && (
-              <table className="partsTable">
-                <tr>
-                  <th>ID</th>
-                  <th>Generic AV</th>
-                  <th>Region</th>
-                  <th>Quantity</th>
-                </tr>
-                {this.renderTableAllUnusedData(all_unused_parts)}
-              </table>
+            {!buffer_used_status && (
+              <div>
+                <ButtonLoaderContainer
+                  onButtonSubmit={this.replenishBuffer.bind(this)}
+                  text="Replenish Parts"
+                  color="light-grey"
+                  loading={loading_replenish_buffer}
+                />
+                {/* <button
+                  onClick={this.replenishBuffer.bind(this)}
+                  className="w3-button w3-round w3-light-grey react_button"
+                >
+                  Replenish Parts
+                </button> */}
+                {all_unused_parts.length !== 0 && (
+                  <table className="partsTable">
+                    <tr>
+                      <th>ID</th>
+                      <th>Generic AV</th>
+                      <th>Region</th>
+                      <th>Quantity</th>
+                    </tr>
+                    {this.renderTableAllUnusedData(all_unused_parts)}
+                  </table>
+                )}
+              </div>
             )}
           </div>
         )}

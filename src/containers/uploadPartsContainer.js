@@ -295,45 +295,80 @@ class UploadPartsContainer extends Component {
     }
   }
 
+  /*
   // not being used currently
-  exportCsv() {
-    let csv = this.state.formattedCSVData;
+  exportCsv(event) {
+    const that = this;
 
+    event.preventDefault();
+
+    let original_data = this.state.formattedCSVData;
+
+    let unique_generic_av = {};
+
+    for (let i = 0; i < original_data.length; i++) {
+      let current_row = original_data[i];
+      let generic_av =
+        current_row.generic_av +
+        (current_row.bom === 1 ? "_BOM" : "") +
+        (current_row.components === "" ? "" : `_${current_row.components}`);
+      if (unique_generic_av[generic_av] === undefined) {
+        unique_generic_av[generic_av] = 1;
+      } else unique_generic_av[generic_av]++;
+    }
+
+    for (let generic_av in unique_generic_av) {
     let csvRow = [];
+
+    let quantity = unique_generic_av[generic_av]
 
     let A = [
       [
-        "Part%20Number",
-        "Description",
-        "Cost",
-        "Make/Buy%20Flag",
-        "Plant%20Code",
+        "User",
+        "User%20Email",
+        "Types%20of%20Services%20Requested",
+        "Quantity",
+        "Overwrite%20LC%20Dates",
+        "PA%20Date",
+        "PI%20Date",
+        "SA%20Date",
+        "PE%20Date",
+        "EM%20Date",
+        "ES%20Date",
       ],
     ];
 
-    for (let i = 0; i < csv.length; i++) {
       A.push([
-        csv[i].specific_av,
-        csv[i].description,
-        "$0.02",
-        "BUY",
-        "%810905",
+        titleCase(that.state.name),
+        titleCase(that.state.email),
+        generic_av,
+        quantity,
+        "N",
       ]);
-    }
-
+    
     for (let i = 0; i < A.length; ++i) {
       csvRow.push(A[i].join(",").split(" ").join("%20"));
     }
 
-    let csvString = csvRow.join("%0A");
+    // CS AV User Request Template_<username>_<generic AV>_BOM_<date>.<ext>
+
+    const csvString = csvRow.join("%0A");
+    const current_date = new Date();
+    const date =
+      current_date.getFullYear() +
+      (current_date.getMonth() + 1) +
+      current_date.getDate();
+    const fileName = `CS AV User Request Template_${titleCase(that.state.name)}_${generic_av}_${date}_QTY${quantity}`;
 
     let a = document.createElement("a");
     a.href = "data:attachment/csv," + csvString;
     a.target = "_Blank";
-    a.download = "Cost Upload Form.csv";
+    a.download = `${fileName}.csv`;
     document.body.appendChild(a);
     a.click();
+    }
   }
+  */
 
   sendIcost() {
     const that = this;
@@ -604,6 +639,13 @@ class UploadPartsContainer extends Component {
                 Send Email Manually
               </button>
               <br />
+
+              {/* <button
+                onClick={this.exportCsv.bind(this)}
+                className="w3-button w3-round w3-light-grey react_button"
+              >
+                Template
+              </button> */}
 
               <table className="partsTable">
                 <tr>
