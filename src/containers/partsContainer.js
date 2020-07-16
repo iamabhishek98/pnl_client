@@ -977,7 +977,7 @@ class PartsContainer extends Component {
           <div>
             <button
               onClick={this.componentDidMount.bind(this)}
-              className="w3-button w3-circle w3-blue react_button"
+              className="w3-button w3-round w3-blue react_button"
             >
               Refresh
             </button>
