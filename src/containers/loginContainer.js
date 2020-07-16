@@ -100,7 +100,7 @@ class LoginContainer extends Component {
             <br />
             <ButtonLoaderContainer
               onButtonSubmit={this.checkUser.bind(this)}
-              text="Login"
+              text="LOGIN"
               color="orange login-button"
               loading={loading_login}
             />

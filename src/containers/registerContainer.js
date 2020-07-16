@@ -117,7 +117,7 @@ class RegisterContainer extends Component {
             <br />
             <ButtonLoaderContainer
               onButtonSubmit={this.registerUser.bind(this)}
-              text="Register"
+              text="REGISTER"
               color="orange register-button"
               loading={loading}
             />
