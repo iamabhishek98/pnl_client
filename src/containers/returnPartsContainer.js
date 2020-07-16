@@ -50,7 +50,7 @@ class ReturnPartsContainer extends Component {
             });
             console.log(that.state.borrowed_av);
           } else {
-            alertMessage("no borrowed parts to return!");
+            alertMessage("no obtained parts to return!");
             that.setState({ redirectHome: true });
           }
         });
@@ -104,7 +104,7 @@ class ReturnPartsContainer extends Component {
               alertMessage("Part Returned!");
             } else {
               alertMessage(
-                "Part Not Returned! Make sure you selected the specific av of a borrowed part!"
+                "Part Not Returned! Make sure you selected the specific av of an obtained part!"
               );
             }
             that.resetForm();
@@ -119,7 +119,7 @@ class ReturnPartsContainer extends Component {
           that.setState({ loading: false });
         });
     } else {
-      alertMessage("Please select one of the borrowed avs to return!");
+      alertMessage("Please select one of the obtained avs to return!");
     }
   }
 
@@ -144,7 +144,7 @@ class ReturnPartsContainer extends Component {
         {borrowed_av.length > 0 && (
           <form id="returnPartForm">
             <select className="input_text" ref="specific_av">
-              <option value="no specific av">Select Borrowed AV</option>
+              <option value="no specific av">Select Obtained AV</option>
               <hr />
               {borrowed_av.map((borrowed_av) => (
                 <option key={borrowed_av} value={borrowed_av}>

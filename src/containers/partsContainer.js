@@ -51,7 +51,7 @@ class PartsContainer extends Component {
             });
             console.log(that.state.available_av);
           } else {
-            alertMessage("no available parts left to borrow!");
+            alertMessage("no available parts left to obtain!");
           }
         });
       })
@@ -362,7 +362,7 @@ class PartsContainer extends Component {
     console.log(data);
 
     if (data.requested_parts.length === 0) {
-      alertMessage("no available parts left to borrow!");
+      alertMessage("no available parts left to obtain!");
       that.resetForms();
     } else if (data.customer !== "") {
       that.setState({
@@ -384,7 +384,7 @@ class PartsContainer extends Component {
             console.log(data);
             if (data.message.toLowerCase() === "data updated") {
               that.emailTable();
-              alertMessage("Parts Borrowed!");
+              alertMessage("Parts Obtained!");
               that.setState({
                 all_av: [],
                 all_av_filtered: [],
@@ -508,11 +508,11 @@ class PartsContainer extends Component {
 
     let data = {
       user: that.state.email,
-      subject: `Parts Borrowed by ${titleCase(
+      subject: `Parts Obtained by ${titleCase(
         that.state.name
       )} on ${current_date.toDateString()}`,
       data: emailData,
-      attachment: "Borrowed Parts",
+      attachment: "Obtained Parts",
     };
 
     let request = new Request(
