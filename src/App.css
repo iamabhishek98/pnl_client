@@ -5,6 +5,15 @@
   /* background-image: url(/images/bg.png); */
 }
 
+.vertical-center {
+  margin: 0 auto;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+
 .login-form {
   width: 450px;
 }

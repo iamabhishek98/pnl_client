@@ -74,7 +74,7 @@ class LoginContainer extends Component {
     let title = this.state.title;
     let loading_login = this.state.loading;
     return (
-      <div className="App">
+      <div className="App vertical-center">
         <br />
         <img className="logo" src="hp_logo.png" alt="HP Logo"></img>
         <br />
@@ -101,7 +101,7 @@ class LoginContainer extends Component {
             <ButtonLoaderContainer
               onButtonSubmit={this.checkUser.bind(this)}
               text="LOGIN"
-              color="orange login-button"
+              color="blue login-button"
               loading={loading_login}
             />
           </form>

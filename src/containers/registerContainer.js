@@ -82,7 +82,7 @@ class RegisterContainer extends Component {
       );
     }
     return (
-      <div className="App">
+      <div className="App vertical-center">
         <br />
         <img className="logo" src="hp_logo.png" alt="HP Logo"></img>
         <br />
@@ -118,7 +118,7 @@ class RegisterContainer extends Component {
             <ButtonLoaderContainer
               onButtonSubmit={this.registerUser.bind(this)}
               text="REGISTER"
-              color="orange register-button"
+              color="blue register-button"
               loading={loading}
             />
           </form>
